@@ -5,7 +5,6 @@ import { calcSummaries } from "@/components/BalanceCards";
 import { exportCSV } from "@/lib/csv";
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import html2canvas from 'html2canvas';
 import AddExpenseForm from "@/components/AddExpenseForm";
 import ExpenseList from "@/components/ExpenseList";
 import BalanceCards from "@/components/BalanceCards";
