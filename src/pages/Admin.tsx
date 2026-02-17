@@ -162,18 +162,6 @@ const Admin = () => {
     window.open(url, '_blank');
   };
 
-  const handleExportPNG = () => {
-    if (!confirm("Are you sure you want to export the PNG?")) return;
-
-    if (reportRef.current) {
-      html2canvas(reportRef.current).then(canvas => {
-        const link = document.createElement('a');
-        link.download = `expense-report-${monthLabel.replace(' ', '-')}.png`;
-        link.href = canvas.toDataURL();
-        link.click();
-      });
-    }
-  };
 
   if (!isLoggedIn) {
     return (
