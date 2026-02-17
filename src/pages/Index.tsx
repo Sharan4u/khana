@@ -13,6 +13,7 @@ import MemberEditor from "@/components/MemberEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Download, RotateCcw, ArrowLeft, LogOut, ChevronLeft, ChevronRight, UtensilsCrossed } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 import { Link } from "react-router-dom";
 
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -149,6 +150,7 @@ const Index = () => {
             </div>
           </div>
           <div className="flex gap-2">
+            <ThemeToggle />
             <Button asChild variant="outline" size="sm">
               <Link to="/admin">
                 Admin
