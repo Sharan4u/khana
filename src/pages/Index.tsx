@@ -97,7 +97,7 @@ const Index = () => {
     if (!confirm("Clear all expenses and reset member names?")) return;
     clearAllData();
     setExpenses([]);
-    setMembers(loadMembers());
+    loadMembers().then(mem => setMembers(mem));
   };
 
   const totalExpense = monthExpenses.reduce((s, e) => s + e.amount, 0);
@@ -105,11 +105,8 @@ const Index = () => {
 
   const handleExport = () => {
     if (!confirm("Are you sure you want to export the PDF?")) return;
-
     const doc = new jsPDF();
-
     doc.text(`Expense Summary for ${monthLabel}`, 10, 10);
-
     const columns = ['Date', 'Description', 'Amount', 'Paid By'];
     const rows = monthExpenses.map(e => [
       e.date,
@@ -117,7 +114,6 @@ const Index = () => {
       e.amount.toFixed(2).replace(/\.00$/, ''),
       members[e.paidBy]?.name || 'Unknown'
     ]);
-
     (doc as any).autoTable({
       head: [columns],
       body: rows,
@@ -127,33 +123,15 @@ const Index = () => {
       alternateRowStyles: { fillColor: [245, 245, 245] },
       margin: { top: 20 },
     });
-
     let y = (doc as any).autoTable.previous.finalY + 10;
     doc.text('Summary:', 10, y);
     y += 10;
-
     summaries.forEach(s => {
       doc.text(`${s.name}: Paid Rs. ${s.totalPaid.toFixed(2).replace(/\.00$/, '')}, Share Rs. ${s.share.toFixed(2).replace(/\.00$/, '')}, Will Pay Rs. ${s.willPay.toFixed(2).replace(/\.00$/, '')}, Will Receive Rs. ${s.willReceive.toFixed(2).replace(/\.00$/, '')}`, 10, y);
       y += 8;
     });
-
     doc.text(`Total Expense: Rs. ${totalExpense.toFixed(2).replace(/\.00$/, '')}`, 10, y);
-
-    // Download directly
     doc.save(`expense-summary-${monthLabel.replace(' ', '-')}.pdf`);
-  };
-
-  const handleExportPNG = () => {
-    if (!confirm("Are you sure you want to export the PNG?")) return;
-
-    if (reportRef.current) {
-      html2canvas(reportRef.current).then(canvas => {
-        const link = document.createElement('a');
-        link.download = `expense-report-${monthLabel.replace(' ', '-')}.png`;
-        link.href = canvas.toDataURL();
-        link.click();
-      });
-    }
   };
 
   return (
