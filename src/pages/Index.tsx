@@ -2,7 +2,6 @@ import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { Expense, Member } from "@/types/expense";
 import { loadExpenses, saveExpenses, loadMembers, saveMembers, clearAllData } from "@/lib/storage";
 import { calcSummaries } from "@/components/BalanceCards";
-import { exportCSV } from "@/lib/csv";
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import AddExpenseForm from "@/components/AddExpenseForm";
@@ -12,15 +11,18 @@ import SummaryReport from "@/components/SummaryReport";
 import MemberEditor from "@/components/MemberEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Download, RotateCcw, ArrowLeft, LogOut, ChevronLeft, ChevronRight, UtensilsCrossed } from "lucide-react";
+import { Download, ChevronLeft, ChevronRight, UtensilsCrossed, Lock, Unlock, LogOut } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
-import { Link } from "react-router-dom";
 
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const ADMIN_PASSWORD = "Khana";
 
 const Index = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [password, setPassword] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -33,15 +35,28 @@ const Index = () => {
     loadMembers().then(mem => setMembers(mem)).catch(error => console.error('Error loading members:', error));
   }, []);
 
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === ADMIN_PASSWORD) {
+      setIsAdmin(true);
+      setShowLoginDialog(false);
+      setPassword("");
+    } else {
+      alert("Invalid password");
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAdmin(false);
+  };
+
   const selectedYear = parseInt(selectedMonth.split("-")[0]);
   const selectedMonthIdx = parseInt(selectedMonth.split("-")[1]) - 1;
   const monthLabel = `${MONTH_NAMES[selectedMonthIdx]} ${selectedYear}`;
 
   const prevMonth = () => {
     if (selectedMonthIdx === 0) {
-      const newYear = selectedYear - 1;
-      const newMonth = 11;
-      setSelectedMonth(`${newYear}-${String(newMonth + 1).padStart(2, "0")}`);
+      setSelectedMonth(`${selectedYear - 1}-12`);
     } else {
       const d = new Date(selectedYear, selectedMonthIdx - 1, 1);
       setSelectedMonth(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
@@ -50,9 +65,7 @@ const Index = () => {
 
   const nextMonth = () => {
     if (selectedMonthIdx === 11) {
-      const newYear = selectedYear + 1;
-      const newMonth = 0;
-      setSelectedMonth(`${newYear}-${String(newMonth + 1).padStart(2, "0")}`);
+      setSelectedMonth(`${selectedYear + 1}-01`);
     } else {
       const d = new Date(selectedYear, selectedMonthIdx + 1, 1);
       setSelectedMonth(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
@@ -146,22 +159,50 @@ const Index = () => {
             </div>
             <div>
               <h1 className="font-display text-2xl font-bold leading-tight">SplitBite</h1>
-              <p className="text-xs text-muted-foreground">Split food expenses fairly</p>
+              <p className="text-xs text-muted-foreground">
+                {isAdmin ? "Admin Mode" : "Split food expenses fairly"}
+              </p>
             </div>
           </div>
           <div className="flex gap-2">
             <ThemeToggle />
-            <Button asChild variant="outline" size="sm">
-              <Link to="/admin">
+            {isAdmin ? (
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                <LogOut className="mr-1.5 h-3.5 w-3.5" />
+                Logout
+              </Button>
+            ) : (
+              <Button variant="outline" size="sm" onClick={() => setShowLoginDialog(true)}>
+                <Lock className="mr-1.5 h-3.5 w-3.5" />
                 Admin
-              </Link>
-            </Button>
+              </Button>
+            )}
             <Button variant="outline" size="sm" onClick={handleExport} disabled={monthExpenses.length === 0}>
               <Download className="mr-1.5 h-3.5 w-3.5" />
               PDF
             </Button>
           </div>
         </header>
+
+        {/* Admin Login Dialog */}
+        {showLoginDialog && (
+          <div className="border rounded-lg p-4 space-y-3 bg-card">
+            <h3 className="font-semibold text-sm">Enter Admin Password</h3>
+            <form onSubmit={handleLogin} className="flex gap-2">
+              <Input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoFocus
+              />
+              <Button type="submit" size="sm">Login</Button>
+              <Button type="button" variant="ghost" size="sm" onClick={() => { setShowLoginDialog(false); setPassword(""); }}>
+                Cancel
+              </Button>
+            </form>
+          </div>
+        )}
 
         {/* Month Selector */}
         <div className="flex items-center justify-center gap-4">
@@ -179,24 +220,42 @@ const Index = () => {
           <h2 className="font-display text-sm font-semibold text-muted-foreground uppercase tracking-wider">
             Members
           </h2>
-          <div className="space-y-2">
-            {members.map((member, index) => (
-              <div key={index} className="p-2 border rounded">
-                {member.name}
-              </div>
-            ))}
-          </div>
+          {isAdmin ? (
+            <MemberEditor members={members} onUpdate={updateMembers} />
+          ) : (
+            <div className="space-y-2">
+              {members.map((member, index) => (
+                <div key={index} className="p-2 border rounded">
+                  {member.name}
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Balance Cards */}
         <BalanceCards members={members} expenses={monthExpenses} />
+
+        {/* Add Expense (Admin only) */}
+        {isAdmin && (
+          <section className="space-y-3">
+            <h2 className="font-display text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+              Add Expense
+            </h2>
+            <AddExpenseForm members={members} onAdd={addExpense} />
+          </section>
+        )}
 
         {/* Expense List */}
         <section className="space-y-3">
           <h2 className="font-display text-sm font-semibold text-muted-foreground uppercase tracking-wider">
             Expenses ({monthExpenses.length})
           </h2>
-          <ExpenseList expenses={monthExpenses} members={members} />
+          {isAdmin ? (
+            <ExpenseList expenses={monthExpenses} members={members} onDelete={deleteExpense} onEdit={editExpense} />
+          ) : (
+            <ExpenseList expenses={monthExpenses} members={members} />
+          )}
         </section>
 
         {/* Summary Report */}
