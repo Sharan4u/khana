@@ -10,19 +10,14 @@ import BalanceCards from "@/components/BalanceCards";
 import SummaryReport from "@/components/SummaryReport";
 import MemberEditor from "@/components/MemberEditor";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Download, ChevronLeft, ChevronRight, UtensilsCrossed, Lock, Unlock, LogOut } from "lucide-react";
+import { Download, ChevronLeft, ChevronRight, UtensilsCrossed } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-const ADMIN_PASSWORD = "Khana";
 
 const Index = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [showLoginDialog, setShowLoginDialog] = useState(false);
-  const [password, setPassword] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -34,21 +29,6 @@ const Index = () => {
     loadExpenses().then(exp => setExpenses(exp)).catch(error => console.error('Error loading expenses:', error));
     loadMembers().then(mem => setMembers(mem)).catch(error => console.error('Error loading members:', error));
   }, []);
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setIsAdmin(true);
-      setShowLoginDialog(false);
-      setPassword("");
-    } else {
-      alert("Invalid password");
-    }
-  };
-
-  const handleLogout = () => {
-    setIsAdmin(false);
-  };
 
   const selectedYear = parseInt(selectedMonth.split("-")[0]);
   const selectedMonthIdx = parseInt(selectedMonth.split("-")[1]) - 1;
@@ -107,18 +87,10 @@ const Index = () => {
     saveMembers(m);
   }, []);
 
-  const handleReset = () => {
-    if (!confirm("Clear all expenses and reset member names?")) return;
-    clearAllData();
-    setExpenses([]);
-    loadMembers().then(mem => setMembers(mem));
-  };
-
   const totalExpense = monthExpenses.reduce((s, e) => s + e.amount, 0);
   const summaries = calcSummaries(members, monthExpenses);
 
   const handleExport = () => {
-    if (!confirm("Are you sure you want to export the PDF?")) return;
     const doc = new jsPDF();
     doc.text(`Expense Summary for ${monthLabel}`, 10, 10);
     const columns = ['Date', 'Description', 'Amount', 'Paid By'];
@@ -159,50 +131,17 @@ const Index = () => {
             </div>
             <div>
               <h1 className="font-display text-2xl font-bold leading-tight">SplitBite</h1>
-              <p className="text-xs text-muted-foreground">
-                {isAdmin ? "Admin Mode" : "Split food expenses fairly"}
-              </p>
+              <p className="text-xs text-muted-foreground">Split food expenses fairly</p>
             </div>
           </div>
           <div className="flex gap-2">
             <ThemeToggle />
-            {isAdmin ? (
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                <LogOut className="mr-1.5 h-3.5 w-3.5" />
-                Logout
-              </Button>
-            ) : (
-              <Button variant="outline" size="sm" onClick={() => setShowLoginDialog(true)}>
-                <Lock className="mr-1.5 h-3.5 w-3.5" />
-                Admin
-              </Button>
-            )}
             <Button variant="outline" size="sm" onClick={handleExport} disabled={monthExpenses.length === 0}>
               <Download className="mr-1.5 h-3.5 w-3.5" />
               PDF
             </Button>
           </div>
         </header>
-
-        {/* Admin Login Dialog */}
-        {showLoginDialog && (
-          <div className="border rounded-lg p-4 space-y-3 bg-card">
-            <h3 className="font-semibold text-sm">Enter Admin Password</h3>
-            <form onSubmit={handleLogin} className="flex gap-2">
-              <Input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoFocus
-              />
-              <Button type="submit" size="sm">Login</Button>
-              <Button type="button" variant="ghost" size="sm" onClick={() => { setShowLoginDialog(false); setPassword(""); }}>
-                Cancel
-              </Button>
-            </form>
-          </div>
-        )}
 
         {/* Month Selector */}
         <div className="flex items-center justify-center gap-4">
@@ -220,42 +159,26 @@ const Index = () => {
           <h2 className="font-display text-sm font-semibold text-muted-foreground uppercase tracking-wider">
             Members
           </h2>
-          {isAdmin ? (
-            <MemberEditor members={members} onUpdate={updateMembers} />
-          ) : (
-            <div className="space-y-2">
-              {members.map((member, index) => (
-                <div key={index} className="p-2 border rounded">
-                  {member.name}
-                </div>
-              ))}
-            </div>
-          )}
+          <MemberEditor members={members} onUpdate={updateMembers} />
         </section>
 
         {/* Balance Cards */}
         <BalanceCards members={members} expenses={monthExpenses} />
 
-        {/* Add Expense (Admin only) */}
-        {isAdmin && (
-          <section className="space-y-3">
-            <h2 className="font-display text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-              Add Expense
-            </h2>
-            <AddExpenseForm members={members} onAdd={addExpense} />
-          </section>
-        )}
+        {/* Add Expense */}
+        <section className="space-y-3">
+          <h2 className="font-display text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+            Add Expense
+          </h2>
+          <AddExpenseForm members={members} onAdd={addExpense} />
+        </section>
 
         {/* Expense List */}
         <section className="space-y-3">
           <h2 className="font-display text-sm font-semibold text-muted-foreground uppercase tracking-wider">
             Expenses ({monthExpenses.length})
           </h2>
-          {isAdmin ? (
-            <ExpenseList expenses={monthExpenses} members={members} onDelete={deleteExpense} onEdit={editExpense} />
-          ) : (
-            <ExpenseList expenses={monthExpenses} members={members} />
-          )}
+          <ExpenseList expenses={monthExpenses} members={members} onDelete={deleteExpense} onEdit={editExpense} />
         </section>
 
         {/* Summary Report */}
