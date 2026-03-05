@@ -17,3 +17,10 @@ export interface MemberSummary {
   willPay: number;
   willReceive: number;
 }
+
+export interface Group {
+  id: string;
+  name: string;
+  members: Member[];
+  expenses: Expense[];
+}
