@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
-import { Expense, Member } from "@/types/expense";
-import { loadExpenses, saveExpenses, loadMembers, saveMembers, clearAllData } from "@/lib/storage";
+import { Expense, Member, Group } from "@/types/expense";
+import { loadGroups, saveGroups, getActiveGroupId, setActiveGroupId, createGroup, updateGroup, deleteGroup } from "@/lib/storage";
 import { calcSummaries } from "@/components/BalanceCards";
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -10,14 +10,26 @@ import BalanceCards from "@/components/BalanceCards";
 import SummaryReport from "@/components/SummaryReport";
 import MemberEditor from "@/components/MemberEditor";
 import { Button } from "@/components/ui/button";
-import { Download, ChevronLeft, ChevronRight, UtensilsCrossed } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Download, ChevronLeft, ChevronRight, UtensilsCrossed, Plus, ChevronDown, Trash2, Pencil, Check, X } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 const Index = () => {
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [members, setMembers] = useState<Member[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [activeGroupId, setActiveGroup] = useState<string | null>(null);
+  const [showNewGroup, setShowNewGroup] = useState(false);
+  const [newGroupName, setNewGroupName] = useState("");
+  const [editingGroupName, setEditingGroupName] = useState(false);
+  const [editGroupValue, setEditGroupValue] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -26,9 +38,28 @@ const Index = () => {
   const reportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    loadExpenses().then(exp => setExpenses(exp)).catch(error => console.error('Error loading expenses:', error));
-    loadMembers().then(mem => setMembers(mem)).catch(error => console.error('Error loading members:', error));
+    const g = loadGroups();
+    setGroups(g);
+    const savedId = getActiveGroupId();
+    if (savedId && g.find(gr => gr.id === savedId)) {
+      setActiveGroup(savedId);
+    } else if (g.length > 0) {
+      setActiveGroup(g[0].id);
+      setActiveGroupId(g[0].id);
+    }
   }, []);
+
+  const activeGroup = groups.find(g => g.id === activeGroupId) || null;
+  const members = activeGroup?.members || [];
+  const expenses = activeGroup?.expenses || [];
+
+  const updateActiveGroup = useCallback((updater: (group: Group) => Group) => {
+    setGroups(prev => {
+      const next = prev.map(g => g.id === activeGroupId ? updater(g) : g);
+      saveGroups(next);
+      return next;
+    });
+  }, [activeGroupId]);
 
   const selectedYear = parseInt(selectedMonth.split("-")[0]);
   const selectedMonthIdx = parseInt(selectedMonth.split("-")[1]) - 1;
@@ -59,33 +90,58 @@ const Index = () => {
 
   const addExpense = useCallback((data: Omit<Expense, "id">) => {
     const newExp: Expense = { ...data, id: crypto.randomUUID() };
-    setExpenses((prev) => {
-      const next = [...prev, newExp];
-      saveExpenses(next);
-      return next;
-    });
-  }, []);
+    updateActiveGroup(g => ({ ...g, expenses: [...g.expenses, newExp] }));
+  }, [updateActiveGroup]);
 
   const deleteExpense = useCallback((id: string) => {
-    setExpenses((prev) => {
-      const next = prev.filter((e) => e.id !== id);
-      saveExpenses(next);
-      return next;
-    });
-  }, []);
+    updateActiveGroup(g => ({ ...g, expenses: g.expenses.filter(e => e.id !== id) }));
+  }, [updateActiveGroup]);
 
   const editExpense = useCallback((updated: Expense) => {
-    setExpenses((prev) => {
-      const next = prev.map((e) => (e.id === updated.id ? updated : e));
-      saveExpenses(next);
-      return next;
-    });
-  }, []);
+    updateActiveGroup(g => ({ ...g, expenses: g.expenses.map(e => e.id === updated.id ? updated : e) }));
+  }, [updateActiveGroup]);
 
   const updateMembers = useCallback((m: Member[]) => {
-    setMembers(m);
-    saveMembers(m);
-  }, []);
+    updateActiveGroup(g => ({ ...g, members: m }));
+  }, [updateActiveGroup]);
+
+  const handleCreateGroup = () => {
+    const name = newGroupName.trim() || "New Group";
+    const group = createGroup(name);
+    setGroups(loadGroups());
+    setActiveGroup(group.id);
+    setActiveGroupId(group.id);
+    setNewGroupName("");
+    setShowNewGroup(false);
+  };
+
+  const handleSwitchGroup = (id: string) => {
+    setActiveGroup(id);
+    setActiveGroupId(id);
+  };
+
+  const handleDeleteGroup = (id: string) => {
+    deleteGroup(id);
+    const remaining = loadGroups();
+    setGroups(remaining);
+    if (activeGroupId === id) {
+      if (remaining.length > 0) {
+        setActiveGroup(remaining[0].id);
+        setActiveGroupId(remaining[0].id);
+      } else {
+        const g = createGroup("My Group");
+        setGroups(loadGroups());
+        setActiveGroup(g.id);
+        setActiveGroupId(g.id);
+      }
+    }
+  };
+
+  const handleRenameGroup = () => {
+    if (!editGroupValue.trim() || !activeGroup) return;
+    updateActiveGroup(g => ({ ...g, name: editGroupValue.trim() }));
+    setEditingGroupName(false);
+  };
 
   const totalExpense = monthExpenses.reduce((s, e) => s + e.amount, 0);
   const summaries = calcSummaries(members, monthExpenses);
@@ -130,7 +186,69 @@ const Index = () => {
               <UtensilsCrossed className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="font-display text-2xl font-bold leading-tight">SplitBite</h1>
+              {editingGroupName ? (
+                <div className="flex items-center gap-1">
+                  <Input
+                    value={editGroupValue}
+                    onChange={e => setEditGroupValue(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && handleRenameGroup()}
+                    className="h-8 text-lg font-bold w-40"
+                    autoFocus
+                    maxLength={30}
+                  />
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={handleRenameGroup}>
+                    <Check className="h-4 w-4" />
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setEditingGroupName(false)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center gap-1 hover:opacity-80 transition-opacity">
+                        <h1 className="font-display text-2xl font-bold leading-tight">
+                          {activeGroup?.name || "SplitBite"}
+                        </h1>
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-56">
+                      {groups.map(g => (
+                        <DropdownMenuItem
+                          key={g.id}
+                          className={`flex items-center justify-between ${g.id === activeGroupId ? 'bg-accent' : ''}`}
+                          onClick={() => handleSwitchGroup(g.id)}
+                        >
+                          <span className="truncate">{g.name}</span>
+                          {groups.length > 1 && (
+                            <button
+                              className="ml-2 p-1 rounded hover:bg-destructive/20 text-muted-foreground hover:text-destructive"
+                              onClick={(e) => { e.stopPropagation(); handleDeleteGroup(g.id); }}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          )}
+                        </DropdownMenuItem>
+                      ))}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => setShowNewGroup(true)}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create New Group
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7"
+                    onClick={() => { setEditGroupValue(activeGroup?.name || ""); setEditingGroupName(true); }}
+                  >
+                    <Pencil className="h-3 w-3 text-muted-foreground" />
+                  </Button>
+                </div>
+              )}
               <p className="text-xs text-muted-foreground">Split food expenses fairly</p>
             </div>
           </div>
@@ -142,6 +260,25 @@ const Index = () => {
             </Button>
           </div>
         </header>
+
+        {/* New Group Dialog */}
+        {showNewGroup && (
+          <div className="flex items-center gap-2 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-4">
+            <Input
+              placeholder="Group name..."
+              value={newGroupName}
+              onChange={e => setNewGroupName(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleCreateGroup()}
+              className="flex-1"
+              autoFocus
+              maxLength={30}
+            />
+            <Button size="sm" onClick={handleCreateGroup}>Create</Button>
+            <Button size="sm" variant="ghost" onClick={() => setShowNewGroup(false)}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
 
         {/* Month Selector */}
         <div className="flex items-center justify-center gap-4">
@@ -156,9 +293,7 @@ const Index = () => {
 
         {/* Members */}
         <section className="space-y-3">
-          <h2 className="font-display text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-            Members
-          </h2>
+          <h2 className="font-display text-sm font-semibold text-muted-foreground uppercase tracking-wider">Members</h2>
           <MemberEditor members={members} onUpdate={updateMembers} />
         </section>
 
@@ -167,17 +302,13 @@ const Index = () => {
 
         {/* Add Expense */}
         <section className="space-y-3">
-          <h2 className="font-display text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-            Add Expense
-          </h2>
+          <h2 className="font-display text-sm font-semibold text-muted-foreground uppercase tracking-wider">Add Expense</h2>
           <AddExpenseForm members={members} onAdd={addExpense} />
         </section>
 
         {/* Expense List */}
         <section className="space-y-3">
-          <h2 className="font-display text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-            Expenses ({monthExpenses.length})
-          </h2>
+          <h2 className="font-display text-sm font-semibold text-muted-foreground uppercase tracking-wider">Expenses ({monthExpenses.length})</h2>
           <ExpenseList expenses={monthExpenses} members={members} onDelete={deleteExpense} onEdit={editExpense} />
         </section>
 

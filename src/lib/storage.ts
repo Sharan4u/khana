@@ -1,7 +1,7 @@
-import { Expense, Member } from "@/types/expense";
+import { Group, Member } from "@/types/expense";
 
-const EXPENSES_KEY = "splitbite_expenses";
-const MEMBERS_KEY = "splitbite_members";
+const GROUPS_KEY = "splitbite_groups";
+const ACTIVE_GROUP_KEY = "splitbite_active_group";
 
 const DEFAULT_MEMBERS: Member[] = [
   { name: "Member 1" },
@@ -10,31 +10,60 @@ const DEFAULT_MEMBERS: Member[] = [
   { name: "Member 4" },
 ];
 
-const isProduction = typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-
-export async function loadExpenses(): Promise<Expense[]> {
+export function loadGroups(): Group[] {
   try {
-    const data = localStorage.getItem(EXPENSES_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch {
-    return [];
+    const data = localStorage.getItem(GROUPS_KEY);
+    if (data) return JSON.parse(data);
+  } catch {}
+  // Migrate old data
+  const oldExpenses = localStorage.getItem("splitbite_expenses");
+  const oldMembers = localStorage.getItem("splitbite_members");
+  const defaultGroup: Group = {
+    id: crypto.randomUUID(),
+    name: "My Group",
+    members: oldMembers ? JSON.parse(oldMembers) : DEFAULT_MEMBERS,
+    expenses: oldExpenses ? JSON.parse(oldExpenses) : [],
+  };
+  saveGroups([defaultGroup]);
+  setActiveGroupId(defaultGroup.id);
+  return [defaultGroup];
+}
+
+export function saveGroups(groups: Group[]): void {
+  localStorage.setItem(GROUPS_KEY, JSON.stringify(groups));
+}
+
+export function getActiveGroupId(): string | null {
+  return localStorage.getItem(ACTIVE_GROUP_KEY);
+}
+
+export function setActiveGroupId(id: string): void {
+  localStorage.setItem(ACTIVE_GROUP_KEY, id);
+}
+
+export function createGroup(name: string): Group {
+  const group: Group = {
+    id: crypto.randomUUID(),
+    name,
+    members: DEFAULT_MEMBERS,
+    expenses: [],
+  };
+  const groups = loadGroups();
+  groups.push(group);
+  saveGroups(groups);
+  return group;
+}
+
+export function updateGroup(updated: Group): void {
+  const groups = loadGroups();
+  const idx = groups.findIndex(g => g.id === updated.id);
+  if (idx !== -1) {
+    groups[idx] = updated;
+    saveGroups(groups);
   }
 }
 
-export async function saveExpenses(expenses: Expense[]): Promise<void> {
-  localStorage.setItem(EXPENSES_KEY, JSON.stringify(expenses));
-}
-
-export async function loadMembers(): Promise<Member[]> {
-  const data = localStorage.getItem(MEMBERS_KEY);
-  return data ? JSON.parse(data) : DEFAULT_MEMBERS;
-}
-
-export async function saveMembers(members: Member[]): Promise<void> {
-  localStorage.setItem(MEMBERS_KEY, JSON.stringify(members));
-}
-
-export async function clearAllData(): Promise<void> {
-  localStorage.removeItem(MEMBERS_KEY);
-  localStorage.removeItem(EXPENSES_KEY);
+export function deleteGroup(id: string): void {
+  const groups = loadGroups().filter(g => g.id !== id);
+  saveGroups(groups);
 }
