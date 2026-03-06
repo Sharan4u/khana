@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import SplitBite from "./pages/SplitBite";
 import ComingSoon from "./pages/ComingSoon";
+import IncomeExpenses from "./pages/IncomeExpenses";
 import NotFound from "./pages/NotFound";
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -20,7 +21,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/splitbite" element={<SplitBite />} />
-          <Route path="/income-expenses" element={<ComingSoon title="Income & Expenses" />} />
+          <Route path="/income-expenses" element={<IncomeExpenses />} />
           <Route path="/pay-due" element={<ComingSoon title="Pay & Due" />} />
           <Route path="/remittance" element={<ComingSoon title="Remittance" />} />
           <Route path="/overtime" element={<ComingSoon title="Overtime Record" />} />
