@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import SplitBite from "./pages/SplitBite";
 import ComingSoon from "./pages/ComingSoon";
+import IncomeExpenses from "./pages/IncomeExpenses";
 import NotFound from "./pages/NotFound";
 import ErrorBoundary from "./components/ErrorBoundary";
 
