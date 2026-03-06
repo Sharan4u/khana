@@ -20,7 +20,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/splitbite" element={<SplitBite />} />
-          <Route path="/income-expenses" element={<ComingSoon title="Income & Expenses" />} />
+          <Route path="/income-expenses" element={<IncomeExpenses />} />
           <Route path="/pay-due" element={<ComingSoon title="Pay & Due" />} />
           <Route path="/remittance" element={<ComingSoon title="Remittance" />} />
           <Route path="/overtime" element={<ComingSoon title="Overtime Record" />} />
