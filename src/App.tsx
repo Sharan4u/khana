@@ -9,6 +9,8 @@ import ComingSoon from "./pages/ComingSoon";
 import IncomeExpenses from "./pages/IncomeExpenses";
 import PayDue from "./pages/PayDue";
 import Remittance from "./pages/Remittance";
+import Salary from "./pages/Salary";
+import Assets from "./pages/Assets";
 import NotFound from "./pages/NotFound";
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -27,8 +29,8 @@ const App = () => (
           <Route path="/pay-due" element={<PayDue />} />
           <Route path="/remittance" element={<Remittance />} />
           <Route path="/overtime" element={<ComingSoon title="Overtime Record" />} />
-          <Route path="/salary" element={<ComingSoon title="Salary" />} />
-          <Route path="/assets" element={<ComingSoon title="Assets" />} />
+          <Route path="/salary" element={<Salary />} />
+          <Route path="/assets" element={<Assets />} />
           <Route path="/gold" element={<ComingSoon title="Gold" />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
