@@ -29,7 +29,7 @@ const App = () => (
           <Route path="/income-expenses" element={<IncomeExpenses />} />
           <Route path="/pay-due" element={<PayDue />} />
           <Route path="/remittance" element={<Remittance />} />
-          <Route path="/overtime" element={<ComingSoon title="Overtime Record" />} />
+          <Route path="/overtime" element={<Overtime />} />
           <Route path="/salary" element={<Salary />} />
           <Route path="/assets" element={<Assets />} />
           <Route path="/gold" element={<ComingSoon title="Gold" />} />
