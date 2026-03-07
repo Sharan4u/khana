@@ -11,6 +11,7 @@ import PayDue from "./pages/PayDue";
 import Remittance from "./pages/Remittance";
 import Salary from "./pages/Salary";
 import Assets from "./pages/Assets";
+import Overtime from "./pages/Overtime";
 import NotFound from "./pages/NotFound";
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -28,7 +29,7 @@ const App = () => (
           <Route path="/income-expenses" element={<IncomeExpenses />} />
           <Route path="/pay-due" element={<PayDue />} />
           <Route path="/remittance" element={<Remittance />} />
-          <Route path="/overtime" element={<ComingSoon title="Overtime Record" />} />
+          <Route path="/overtime" element={<Overtime />} />
           <Route path="/salary" element={<Salary />} />
           <Route path="/assets" element={<Assets />} />
           <Route path="/gold" element={<ComingSoon title="Gold" />} />
