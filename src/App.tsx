@@ -9,6 +9,8 @@ import ComingSoon from "./pages/ComingSoon";
 import IncomeExpenses from "./pages/IncomeExpenses";
 import PayDue from "./pages/PayDue";
 import Remittance from "./pages/Remittance";
+import Salary from "./pages/Salary";
+import Assets from "./pages/Assets";
 import NotFound from "./pages/NotFound";
 import ErrorBoundary from "./components/ErrorBoundary";
 
