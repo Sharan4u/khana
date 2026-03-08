@@ -150,32 +150,131 @@ const Index = () => {
 
   const handleExport = () => {
     const doc = new jsPDF();
-    doc.text(`Expense Summary for ${monthLabel}`, 10, 10);
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const fmt = (n: number) => `Rs. ${n.toFixed(2).replace(/\.00$/, '')}`;
+
+    // Header background
+    doc.setFillColor(44, 62, 80);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+
+    // Title
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Splitwise', 14, 18);
+
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Expense Report — ${monthLabel}`, 14, 28);
+
+    // Group name
+    if (activeGroup?.name) {
+      doc.setFontSize(10);
+      doc.text(`Group: ${activeGroup.name}`, 14, 35);
+    }
+
+    // Reset text color
+    doc.setTextColor(0, 0, 0);
+
+    // Summary cards row
+    let y = 50;
+    const cardWidth = (pageWidth - 28 - 12) / 3; // 3 cards with gaps
+    const cardData = [
+      { label: 'Total Expense', value: fmt(totalExpense), color: [231, 76, 60] as [number, number, number] },
+      { label: 'Per Person Share', value: fmt(members.length > 0 ? totalExpense / members.length : 0), color: [41, 128, 185] as [number, number, number] },
+      { label: 'Members', value: `${members.length}`, color: [39, 174, 96] as [number, number, number] },
+    ];
+
+    cardData.forEach((card, i) => {
+      const x = 14 + i * (cardWidth + 6);
+      doc.setFillColor(245, 247, 250);
+      doc.roundedRect(x, y, cardWidth, 24, 3, 3, 'F');
+      doc.setFillColor(...card.color);
+      doc.roundedRect(x, y, 4, 24, 2, 2, 'F');
+      doc.setFontSize(8);
+      doc.setTextColor(120, 120, 120);
+      doc.setFont('helvetica', 'normal');
+      doc.text(card.label.toUpperCase(), x + 10, y + 9);
+      doc.setFontSize(14);
+      doc.setTextColor(30, 30, 30);
+      doc.setFont('helvetica', 'bold');
+      doc.text(card.value, x + 10, y + 19);
+    });
+
+    y += 34;
+
+    // Expenses table
+    doc.setTextColor(44, 62, 80);
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Expenses', 14, y);
+    y += 4;
+
     const columns = ['Date', 'Description', 'Amount', 'Paid By'];
     const rows = monthExpenses.map(e => [
       e.date,
       e.description,
-      e.amount.toFixed(2).replace(/\.00$/, ''),
+      fmt(e.amount),
       members[e.paidBy]?.name || 'Unknown'
     ]);
+
     autoTable(doc, {
       head: [columns],
       body: rows,
-      startY: 20,
-      styles: { fontSize: 10, cellPadding: 3 },
-      headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-      alternateRowStyles: { fillColor: [245, 245, 245] },
-      margin: { top: 20 },
+      startY: y,
+      styles: { fontSize: 9, cellPadding: 4, lineColor: [220, 220, 220], lineWidth: 0.3 },
+      headStyles: { fillColor: [44, 62, 80], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+      alternateRowStyles: { fillColor: [248, 249, 252] },
+      columnStyles: { 2: { halign: 'right', fontStyle: 'bold' } },
+      margin: { left: 14, right: 14 },
     });
-    let y = (doc as any).lastAutoTable.finalY + 10;
-    doc.text('Summary:', 10, y);
-    y += 10;
-    summaries.forEach(s => {
-      doc.text(`${s.name}: Paid Rs. ${s.totalPaid.toFixed(2).replace(/\.00$/, '')}, Share Rs. ${s.share.toFixed(2).replace(/\.00$/, '')}, Will Pay Rs. ${s.willPay.toFixed(2).replace(/\.00$/, '')}, Will Receive Rs. ${s.willReceive.toFixed(2).replace(/\.00$/, '')}`, 10, y);
-      y += 8;
+
+    y = (doc as any).lastAutoTable.finalY + 12;
+
+    // Settlement summary table
+    doc.setTextColor(44, 62, 80);
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Settlement Summary', 14, y);
+    y += 4;
+
+    const summaryColumns = ['Member', 'Total Paid', 'Fair Share', 'Will Pay', 'Will Receive'];
+    const summaryRows = summaries.map(s => [
+      s.name,
+      fmt(s.totalPaid),
+      fmt(s.share),
+      s.willPay > 0 ? fmt(s.willPay) : '—',
+      s.willReceive > 0 ? fmt(s.willReceive) : '—',
+    ]);
+
+    autoTable(doc, {
+      head: [summaryColumns],
+      body: summaryRows,
+      startY: y,
+      styles: { fontSize: 9, cellPadding: 4, lineColor: [220, 220, 220], lineWidth: 0.3 },
+      headStyles: { fillColor: [39, 174, 96], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+      alternateRowStyles: { fillColor: [248, 249, 252] },
+      columnStyles: {
+        1: { halign: 'right' },
+        2: { halign: 'right' },
+        3: { halign: 'right', textColor: [231, 76, 60] },
+        4: { halign: 'right', textColor: [39, 174, 96] },
+      },
+      margin: { left: 14, right: 14 },
     });
-    doc.text(`Total Expense: Rs. ${totalExpense.toFixed(2).replace(/\.00$/, '')}`, 10, y);
-    doc.save(`expense-summary-${monthLabel.replace(' ', '-')}.pdf`);
+
+    y = (doc as any).lastAutoTable.finalY + 14;
+
+    // Footer
+    doc.setDrawColor(200, 200, 200);
+    doc.line(14, y, pageWidth - 14, y);
+    y += 6;
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Generated on ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} • Splitwise by Smart Money`, 14, y);
+
+    doc.save(`splitwise-${monthLabel.replace(' ', '-')}.pdf`);
   };
 
   return (
