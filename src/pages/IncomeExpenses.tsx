@@ -234,7 +234,10 @@ const IncomeExpenses = () => {
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Add Transaction</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              <div className="h-1 w-4 rounded-full bg-primary/40" />
+              Add Transaction
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleAdd} className="space-y-3">
