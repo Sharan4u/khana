@@ -199,7 +199,33 @@ const IncomeExpenses = () => {
           </Card>
         </div>
 
-        {/* Add form */}
+        {/* Monthly Bar Chart */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" /> Monthly Overview (6 months)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pb-4">
+            <div className="h-52">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyChartData} barGap={2}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                  <XAxis dataKey="month" className="text-xs fill-muted-foreground" tick={{ fontSize: 11 }} />
+                  <YAxis className="text-xs fill-muted-foreground" tick={{ fontSize: 11 }} tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
+                  <Tooltip
+                    contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", color: "hsl(var(--card-foreground))" }}
+                    formatter={(value: number, name: string) => [`Rs. ${value.toFixed(0)}`, name === "income" ? "Income" : "Expense"]}
+                  />
+                  <Bar dataKey="income" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="expense" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Add Transaction</CardTitle>
