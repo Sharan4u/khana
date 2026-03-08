@@ -184,6 +184,9 @@ const Index = () => {
         {/* Header */}
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary shadow-[0_4px_0_0_hsl(var(--primary)/0.5),0_6px_16px_-2px_hsl(var(--primary)/0.3)]">
               <UtensilsCrossed className="h-6 w-6 text-primary-foreground" />
             </div>
