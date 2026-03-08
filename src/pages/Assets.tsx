@@ -4,16 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Target, Landmark, BarChart3 } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Landmark, BarChart3 } from "lucide-react";
 import { Asset, AssetCategory, ASSET_CATEGORY_LABELS } from "@/types/assets";
 import { loadAssets, saveAssets } from "@/lib/assets-storage";
 import { loadTransactions } from "@/lib/income-expense-storage";
 import { useToast } from "@/hooks/use-toast";
+import FinancialFreedomCalculator from "@/components/FinancialFreedomCalculator";
 
 const Assets = () => {
   const navigate = useNavigate();
