@@ -4,7 +4,7 @@ import { Expense, Member, Group } from "@/types/expense";
 import { loadGroups, saveGroups, getActiveGroupId, setActiveGroupId, createGroup, updateGroup, deleteGroup } from "@/lib/storage";
 import { calcSummaries } from "@/components/BalanceCards";
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import AddExpenseForm from "@/components/AddExpenseForm";
 import ExpenseList from "@/components/ExpenseList";
 import BalanceCards from "@/components/BalanceCards";
