@@ -124,16 +124,16 @@ const Remittance = () => {
 
         {/* Summary */}
         <div className="grid grid-cols-2 gap-3">
-          <Card>
-            <CardContent className="p-4 text-center">
-              <p className="text-xs text-muted-foreground">Total Sent</p>
-              <p className="text-xl font-bold text-[hsl(var(--success))]">{totalSent.toFixed(2)}</p>
+          <Card className="border-[hsl(var(--success))]/20 bg-[hsl(var(--success))]/[0.04]">
+            <CardContent className="p-5 text-center space-y-1">
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Total Sent</p>
+              <p className="text-2xl font-bold font-display text-[hsl(var(--success))] tabular-nums">{totalSent.toFixed(2)}</p>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <p className="text-xs text-muted-foreground">Pending</p>
-              <p className="text-xl font-bold text-destructive">{totalPending.toFixed(2)}</p>
+          <Card className="border-destructive/20 bg-destructive/[0.04]">
+            <CardContent className="p-5 text-center space-y-1">
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Pending</p>
+              <p className="text-2xl font-bold font-display text-destructive tabular-nums">{totalPending.toFixed(2)}</p>
             </CardContent>
           </Card>
         </div>
