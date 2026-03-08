@@ -184,7 +184,7 @@ const IncomeExpenses = () => {
             <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={monthTransactions.length === 0}>
               <FileText className="h-4 w-4 mr-1" /> PDF
             </Button>
-            <ThemeToggle />
+            
           </div>
         </header>
 

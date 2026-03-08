@@ -357,7 +357,7 @@ const Index = () => {
             </div>
           </div>
           <div className="flex gap-2">
-            <ThemeToggle />
+            
             <Button variant="outline" size="sm" onClick={handleExport} disabled={monthExpenses.length === 0}>
               <Download className="mr-1.5 h-3.5 w-3.5" />
               PDF
