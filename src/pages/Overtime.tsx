@@ -221,20 +221,20 @@ END:VCALENDAR`;
 
             {/* Stats strip */}
             <div className="grid grid-cols-3 gap-3">
-              <div className="rounded-xl bg-accent/50 p-3 text-center">
-                <Clock className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
+              <div className="rounded-2xl border-2 border-[hsl(var(--warning))]/20 bg-[hsl(var(--warning))]/[0.06] p-3 text-center shadow-[0_2px_0_0_hsl(var(--warning)/0.15)]">
+                <Clock className="h-4 w-4 mx-auto mb-1 text-[hsl(var(--warning))]" />
                 <p className="font-display text-lg font-bold">{totalHours.toFixed(1)}h</p>
-                <p className="text-xs text-muted-foreground">Total</p>
+                <p className="text-xs font-semibold text-muted-foreground">Total</p>
               </div>
-              <div className="rounded-xl bg-accent/50 p-3 text-center">
-                <CalendarDays className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
+              <div className="rounded-2xl border-2 border-primary/20 bg-primary/[0.04] p-3 text-center shadow-[0_2px_0_0_hsl(var(--primary)/0.1)]">
+                <CalendarDays className="h-4 w-4 mx-auto mb-1 text-primary" />
                 <p className="font-display text-lg font-bold">{daysWorked}</p>
-                <p className="text-xs text-muted-foreground">Days</p>
+                <p className="text-xs font-semibold text-muted-foreground">Days</p>
               </div>
-              <div className="rounded-xl bg-accent/50 p-3 text-center">
-                <TrendingUp className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
+              <div className="rounded-2xl border-2 border-[hsl(var(--success))]/20 bg-[hsl(var(--success))]/[0.04] p-3 text-center shadow-[0_2px_0_0_hsl(var(--success)/0.1)]">
+                <TrendingUp className="h-4 w-4 mx-auto mb-1 text-[hsl(var(--success))]" />
                 <p className="font-display text-lg font-bold">{avgPerDay.toFixed(1)}h</p>
-                <p className="text-xs text-muted-foreground">Avg/Day</p>
+                <p className="text-xs font-semibold text-muted-foreground">Avg/Day</p>
               </div>
             </div>
           </CardContent>
@@ -285,7 +285,7 @@ END:VCALENDAR`;
                       </div>
                     </div>
                   ) : (
-                    <div key={e.id} className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3 hover:shadow-md transition-shadow">
+                    <div key={e.id} className="flex items-center gap-3 rounded-2xl border-2 border-border/50 bg-card px-4 py-3 shadow-[0_2px_0_0_hsl(var(--border)/0.3)] hover:shadow-[0_1px_0_0_hsl(var(--border)/0.3)] hover:translate-y-[1px] transition-all duration-150">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium">
                           {new Date(e.date + "T00:00:00").toLocaleDateString("default", { weekday: "short", day: "numeric", month: "short" })}

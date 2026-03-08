@@ -263,7 +263,7 @@ const Index = () => {
 
         {/* New Group Dialog */}
         {showNewGroup && (
-          <div className="flex items-center gap-2 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-4">
+          <div className="flex items-center gap-2 rounded-2xl border-2 border-dashed border-primary/30 bg-primary/[0.04] p-5 shadow-[0_3px_0_0_hsl(var(--primary)/0.1)]">
             <Input
               placeholder="Group name..."
               value={newGroupName}
@@ -293,7 +293,10 @@ const Index = () => {
 
         {/* Members */}
         <section className="space-y-3">
-          <h2 className="font-display text-sm font-semibold text-muted-foreground uppercase tracking-wider">Members</h2>
+          <div className="flex items-center gap-2">
+            <div className="h-1 w-4 rounded-full bg-primary/40" />
+            <h2 className="font-display text-sm font-bold text-muted-foreground uppercase tracking-wider">Members</h2>
+          </div>
           <MemberEditor members={members} onUpdate={updateMembers} />
         </section>
 
@@ -302,13 +305,19 @@ const Index = () => {
 
         {/* Add Expense */}
         <section className="space-y-3">
-          <h2 className="font-display text-sm font-semibold text-muted-foreground uppercase tracking-wider">Add Expense</h2>
+          <div className="flex items-center gap-2">
+            <div className="h-1 w-4 rounded-full bg-primary/40" />
+            <h2 className="font-display text-sm font-bold text-muted-foreground uppercase tracking-wider">Add Expense</h2>
+          </div>
           <AddExpenseForm members={members} onAdd={addExpense} />
         </section>
 
         {/* Expense List */}
         <section className="space-y-3">
-          <h2 className="font-display text-sm font-semibold text-muted-foreground uppercase tracking-wider">Expenses ({monthExpenses.length})</h2>
+          <div className="flex items-center gap-2">
+            <div className="h-1 w-4 rounded-full bg-primary/40" />
+            <h2 className="font-display text-sm font-bold text-muted-foreground uppercase tracking-wider">Expenses ({monthExpenses.length})</h2>
+          </div>
           <ExpenseList expenses={monthExpenses} members={members} onDelete={deleteExpense} onEdit={editExpense} />
         </section>
 

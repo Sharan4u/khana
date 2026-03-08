@@ -168,30 +168,36 @@ const IncomeExpenses = () => {
 
         {/* Summary cards */}
         <div className="grid grid-cols-3 gap-3">
-          <Card>
+          <Card className="border-[hsl(var(--success))]/20 bg-[hsl(var(--success))]/[0.04]">
             <CardContent className="p-4 flex items-center gap-3">
-              <TrendingUp className="h-5 w-5 text-[hsl(var(--success))]" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[hsl(var(--success))]/15">
+                <TrendingUp className="h-5 w-5 text-[hsl(var(--success))]" />
+              </div>
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Income</p>
-                <p className="font-display font-semibold text-sm">{fmt(monthIncome)}</p>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Income</p>
+                <p className="font-display font-bold text-sm">{fmt(monthIncome)}</p>
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="border-destructive/20 bg-destructive/[0.04]">
             <CardContent className="p-4 flex items-center gap-3">
-              <TrendingDown className="h-5 w-5 text-destructive" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-destructive/15">
+                <TrendingDown className="h-5 w-5 text-destructive" />
+              </div>
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Expense</p>
-                <p className="font-display font-semibold text-sm">{fmt(monthExpense)}</p>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Expense</p>
+                <p className="font-display font-bold text-sm">{fmt(monthExpense)}</p>
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className={balance >= 0 ? "border-[hsl(var(--success))]/20 bg-[hsl(var(--success))]/[0.04]" : "border-destructive/20 bg-destructive/[0.04]"}>
             <CardContent className="p-4 flex items-center gap-3">
-              <Wallet className="h-5 w-5 text-primary" />
+              <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${balance >= 0 ? "bg-[hsl(var(--success))]/15" : "bg-destructive/15"}`}>
+                <Wallet className={`h-5 w-5 ${balance >= 0 ? "text-[hsl(var(--success))]" : "text-destructive"}`} />
+              </div>
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Balance</p>
-                <p className={`font-display font-semibold text-sm ${balance >= 0 ? "text-[hsl(var(--success))]" : "text-destructive"}`}>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Balance</p>
+                <p className={`font-display font-bold text-sm ${balance >= 0 ? "text-[hsl(var(--success))]" : "text-destructive"}`}>
                   {fmt(balance)}
                 </p>
               </div>
@@ -228,7 +234,10 @@ const IncomeExpenses = () => {
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Add Transaction</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              <div className="h-1 w-4 rounded-full bg-primary/40" />
+              Add Transaction
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleAdd} className="space-y-3">
@@ -351,7 +360,7 @@ const IncomeExpenses = () => {
                   </div>
                 </div>
               ) : (
-                <div key={t.id} className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3 hover:shadow-md transition-shadow">
+                <div key={t.id} className="flex items-center gap-3 rounded-2xl border-2 border-border/50 bg-card px-4 py-3 shadow-[0_2px_0_0_hsl(var(--border)/0.3)] hover:shadow-[0_1px_0_0_hsl(var(--border)/0.3)] hover:translate-y-[1px] transition-all duration-150">
                   <div className={`h-2 w-2 rounded-full shrink-0 ${t.type === "income" ? "bg-[hsl(var(--success))]" : "bg-destructive"}`} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{t.description}</p>
