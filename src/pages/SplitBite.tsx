@@ -12,7 +12,7 @@ import SummaryReport from "@/components/SummaryReport";
 import MemberEditor from "@/components/MemberEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Download, ChevronLeft, ChevronRight, UtensilsCrossed, Plus, ChevronDown, Trash2, Pencil, Check, X } from "lucide-react";
+import { Download, ChevronLeft, ChevronRight, UtensilsCrossed, Plus, ChevronDown, Trash2, Pencil, Check, X, ArrowLeft } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import {
   DropdownMenu,
