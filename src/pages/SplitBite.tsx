@@ -25,6 +25,7 @@ import {
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 const Index = () => {
+  const navigate = useNavigate();
   const [groups, setGroups] = useState<Group[]>([]);
   const [activeGroupId, setActiveGroup] = useState<string | null>(null);
   const [showNewGroup, setShowNewGroup] = useState(false);
