@@ -104,7 +104,7 @@ const Assets = () => {
             <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <h1 className="font-display text-2xl font-bold text-foreground">Assets</h1>
+            <h1 className="font-display text-2xl font-bold text-foreground">Financial Freedom</h1>
           </div>
           <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetForm(); }}>
             <DialogTrigger asChild>
