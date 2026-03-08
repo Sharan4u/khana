@@ -4,16 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Target, Landmark, BarChart3 } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Landmark, BarChart3 } from "lucide-react";
 import { Asset, AssetCategory, ASSET_CATEGORY_LABELS } from "@/types/assets";
 import { loadAssets, saveAssets } from "@/lib/assets-storage";
 import { loadTransactions } from "@/lib/income-expense-storage";
 import { useToast } from "@/hooks/use-toast";
+import FinancialFreedomCalculator from "@/components/FinancialFreedomCalculator";
 
 const Assets = () => {
   const navigate = useNavigate();
@@ -76,43 +76,25 @@ const Assets = () => {
     return { totalInvested, totalCurrent, gainLoss, gainPct, byCategory };
   }, [assets]);
 
-  // Financial Freedom Calculator
-  const freedom = useMemo(() => {
+  // Avg income/expense for calculator
+  const incomeExpenseStats = useMemo(() => {
     const transactions = loadTransactions();
     const now = new Date();
     const last6Months = Array.from({ length: 6 }, (_, i) => {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     });
-
     let totalIncome = 0, totalExpense = 0, months = 0;
     last6Months.forEach(m => {
       const monthTx = transactions.filter(t => t.date.startsWith(m));
       if (monthTx.length > 0) months++;
       monthTx.forEach(t => { if (t.type === "income") totalIncome += t.amount; else totalExpense += t.amount; });
     });
-
-    const avgMonthlyExpense = months > 0 ? totalExpense / months : 0;
-    const avgMonthlyIncome = months > 0 ? totalIncome / months : 0;
-    const totalAssetValue = summary.totalCurrent;
-    const monthsCovered = avgMonthlyExpense > 0 ? totalAssetValue / avgMonthlyExpense : 0;
-    const savingsRate = avgMonthlyIncome > 0 ? ((avgMonthlyIncome - avgMonthlyExpense) / avgMonthlyIncome) * 100 : 0;
-
-    let status: "critical" | "building" | "stable" | "free" = "critical";
-    let label = "Critical";
-    if (monthsCovered >= 120) { status = "free"; label = "Financially Free 🎉"; }
-    else if (monthsCovered >= 24) { status = "stable"; label = "Stable"; }
-    else if (monthsCovered >= 6) { status = "building"; label = "Building"; }
-
-    return { avgMonthlyExpense, avgMonthlyIncome, totalAssetValue, monthsCovered, savingsRate, status, label };
-  }, [summary.totalCurrent]);
-
-  const statusColors: Record<string, string> = {
-    critical: "bg-destructive text-destructive-foreground",
-    building: "bg-warning text-warning-foreground",
-    stable: "bg-primary text-primary-foreground",
-    free: "bg-success text-success-foreground",
-  };
+    return {
+      avgMonthlyIncome: months > 0 ? totalIncome / months : 0,
+      avgMonthlyExpense: months > 0 ? totalExpense / months : 0,
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -163,28 +145,14 @@ const Assets = () => {
             {summary.gainLoss >= 0 ? <TrendingUp className="h-8 w-8 text-success" /> : <TrendingDown className="h-8 w-8 text-destructive" />}
             <div><p className="text-xs text-muted-foreground">Gain / Loss</p><p className={`text-lg font-bold ${summary.gainLoss >= 0 ? "text-success" : "text-destructive"}`}>{summary.gainLoss >= 0 ? "+" : ""}{summary.gainLoss.toFixed(2)} ({summary.gainPct.toFixed(1)}%)</p></div>
           </CardContent></Card>
-          <Card><CardContent className="p-4 flex items-center gap-3"><Target className="h-8 w-8 text-primary" /><div><p className="text-xs text-muted-foreground">Freedom Status</p><Badge className={statusColors[freedom.status]}>{freedom.label}</Badge></div></CardContent></Card>
         </div>
 
-        {/* Financial Freedom Detail */}
-        <Card>
-          <CardHeader><CardTitle className="text-lg">Financial Freedom Calculator</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div><p className="text-muted-foreground">Avg Monthly Income</p><p className="font-bold text-foreground">{freedom.avgMonthlyIncome.toFixed(2)}</p></div>
-              <div><p className="text-muted-foreground">Avg Monthly Expense</p><p className="font-bold text-foreground">{freedom.avgMonthlyExpense.toFixed(2)}</p></div>
-              <div><p className="text-muted-foreground">Savings Rate</p><p className="font-bold text-foreground">{freedom.savingsRate.toFixed(1)}%</p></div>
-              <div><p className="text-muted-foreground">Months Covered by Assets</p><p className="font-bold text-foreground">{freedom.monthsCovered.toFixed(1)}</p></div>
-            </div>
-            <div>
-              <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                <span>Progress to Financial Freedom (120 months)</span>
-                <span>{Math.min(100, (freedom.monthsCovered / 120) * 100).toFixed(0)}%</span>
-              </div>
-              <Progress value={Math.min(100, (freedom.monthsCovered / 120) * 100)} />
-            </div>
-          </CardContent>
-        </Card>
+        {/* Financial Freedom Calculator */}
+        <FinancialFreedomCalculator
+          totalAssetValue={summary.totalCurrent}
+          avgMonthlyIncome={incomeExpenseStats.avgMonthlyIncome}
+          avgMonthlyExpense={incomeExpenseStats.avgMonthlyExpense}
+        />
 
         {/* Category Breakdown */}
         {Object.keys(summary.byCategory).length > 0 && (
