@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Expense, Member, Group } from "@/types/expense";
 import { loadGroups, saveGroups, getActiveGroupId, setActiveGroupId, createGroup, updateGroup, deleteGroup } from "@/lib/storage";
 import { calcSummaries } from "@/components/BalanceCards";
@@ -11,7 +12,7 @@ import SummaryReport from "@/components/SummaryReport";
 import MemberEditor from "@/components/MemberEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Download, ChevronLeft, ChevronRight, UtensilsCrossed, Plus, ChevronDown, Trash2, Pencil, Check, X } from "lucide-react";
+import { Download, ChevronLeft, ChevronRight, UtensilsCrossed, Plus, ChevronDown, Trash2, Pencil, Check, X, ArrowLeft } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import {
   DropdownMenu,
@@ -24,6 +25,7 @@ import {
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 const Index = () => {
+  const navigate = useNavigate();
   const [groups, setGroups] = useState<Group[]>([]);
   const [activeGroupId, setActiveGroup] = useState<string | null>(null);
   const [showNewGroup, setShowNewGroup] = useState(false);
@@ -182,6 +184,9 @@ const Index = () => {
         {/* Header */}
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary shadow-[0_4px_0_0_hsl(var(--primary)/0.5),0_6px_16px_-2px_hsl(var(--primary)/0.3)]">
               <UtensilsCrossed className="h-6 w-6 text-primary-foreground" />
             </div>
