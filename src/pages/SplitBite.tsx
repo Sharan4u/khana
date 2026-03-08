@@ -263,7 +263,7 @@ const Index = () => {
 
         {/* New Group Dialog */}
         {showNewGroup && (
-          <div className="flex items-center gap-2 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-4">
+          <div className="flex items-center gap-2 rounded-2xl border-2 border-dashed border-primary/30 bg-primary/[0.04] p-5 shadow-[0_3px_0_0_hsl(var(--primary)/0.1)]">
             <Input
               placeholder="Group name..."
               value={newGroupName}
