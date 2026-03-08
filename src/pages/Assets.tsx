@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Landmark, BarChart3, FileText } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Landmark, BarChart3, Download } from "lucide-react";
 import { createPdfDoc, drawHeader, drawSummaryCards, drawSectionTitle, drawFooter, getTableFinalY, autoTable, fmt as pdfFmt } from "@/lib/pdf-utils";
 import { Asset, AssetCategory, ASSET_CATEGORY_LABELS } from "@/types/assets";
 import { loadAssets, saveAssets } from "@/lib/assets-storage";
@@ -135,7 +135,7 @@ const Assets = () => {
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={assets.length === 0}>
-              <FileText className="h-4 w-4 mr-1" /> PDF
+              <Download className="h-4 w-4 mr-1" /> PDF
             </Button>
           <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetForm(); }}>
             <DialogTrigger asChild>
