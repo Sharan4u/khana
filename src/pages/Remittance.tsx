@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { RemittanceRecord, RemittanceStatus } from "@/types/remittance";
 import { loadRemittances, saveRemittances } from "@/lib/remittance-storage";
 import { useToast } from "@/hooks/use-toast";
-import ThemeToggle from "@/components/ThemeToggle";
+
 
 const Remittance = () => {
   const navigate = useNavigate();
