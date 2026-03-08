@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ThemeToggle from "@/components/ThemeToggle";
+
 import {
   Transaction,
   TransactionType,
@@ -184,7 +184,7 @@ const IncomeExpenses = () => {
             <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={monthTransactions.length === 0}>
               <FileText className="h-4 w-4 mr-1" /> PDF
             </Button>
-            <ThemeToggle />
+            
           </div>
         </header>
 

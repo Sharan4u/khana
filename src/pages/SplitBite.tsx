@@ -13,7 +13,7 @@ import MemberEditor from "@/components/MemberEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Download, ChevronLeft, ChevronRight, UtensilsCrossed, Plus, ChevronDown, Trash2, Pencil, Check, X, ArrowLeft } from "lucide-react";
-import ThemeToggle from "@/components/ThemeToggle";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -357,7 +357,7 @@ const Index = () => {
             </div>
           </div>
           <div className="flex gap-2">
-            <ThemeToggle />
+            
             <Button variant="outline" size="sm" onClick={handleExport} disabled={monthExpenses.length === 0}>
               <Download className="mr-1.5 h-3.5 w-3.5" />
               PDF
