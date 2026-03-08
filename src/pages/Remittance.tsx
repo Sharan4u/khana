@@ -27,6 +27,7 @@ const Remittance = () => {
   const [recipientName, setRecipientName] = useState("");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState<Date | undefined>(undefined);
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [status, setStatus] = useState<RemittanceStatus>("pending");
   const [note, setNote] = useState("");
 
