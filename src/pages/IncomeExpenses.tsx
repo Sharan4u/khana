@@ -98,6 +98,25 @@ const IncomeExpenses = () => {
 
   const categories = formType === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
 
+  // Monthly bar chart data (last 6 months)
+  const monthlyChartData = useMemo(() => {
+    const now = parse(selectedMonth + "-01", "yyyy-MM-dd", new Date());
+    return Array.from({ length: 6 }, (_, i) => {
+      const m = subMonths(now, 5 - i);
+      const ms = startOfMonth(m);
+      const me = endOfMonth(m);
+      let income = 0, expense = 0;
+      transactions.forEach((t) => {
+        const d = new Date(t.date);
+        if (isWithinInterval(d, { start: ms, end: me })) {
+          if (t.type === "income") income += t.amount;
+          else expense += t.amount;
+        }
+      });
+      return { month: format(m, "MMM"), income, expense };
+    });
+  }, [transactions, selectedMonth]);
+
   // Category breakdown
   const categoryBreakdown = useMemo(() => {
     const map = new Map<string, number>();
