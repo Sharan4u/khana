@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Trash2, Edit2, X, CalendarIcon, FileText } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Edit2, X, CalendarIcon, Download } from "lucide-react";
 import { createPdfDoc, drawHeader, drawSummaryCards, drawSectionTitle, drawFooter, getTableFinalY, autoTable, fmt as pdfFmt } from "@/lib/pdf-utils";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
