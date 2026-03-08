@@ -360,7 +360,7 @@ const IncomeExpenses = () => {
                   </div>
                 </div>
               ) : (
-                <div key={t.id} className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3 hover:shadow-md transition-shadow">
+                <div key={t.id} className="flex items-center gap-3 rounded-2xl border-2 border-border/50 bg-card px-4 py-3 shadow-[0_2px_0_0_hsl(var(--border)/0.3)] hover:shadow-[0_1px_0_0_hsl(var(--border)/0.3)] hover:translate-y-[1px] transition-all duration-150">
                   <div className={`h-2 w-2 rounded-full shrink-0 ${t.type === "income" ? "bg-[hsl(var(--success))]" : "bg-destructive"}`} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{t.description}</p>
