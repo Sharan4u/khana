@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Plus, Pencil, Trash2, Wallet, TrendingUp, ShoppingCart, PiggyBank, FileText } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, Wallet, TrendingUp, ShoppingCart, PiggyBank, Download } from "lucide-react";
 import { createPdfDoc, drawHeader, drawSummaryCards, drawSectionTitle, drawFooter, getTableFinalY, autoTable, fmt as pdfFmt } from "@/lib/pdf-utils";
 import { SalaryRecord } from "@/types/salary";
 import { loadSalaryRecords, saveSalaryRecords } from "@/lib/salary-storage";
