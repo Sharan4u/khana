@@ -123,7 +123,7 @@ const Gold = () => {
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={!pricePerGram24k}>
-              <FileText className="h-4 w-4 mr-1" /> PDF
+              <Download className="h-4 w-4 mr-1" /> PDF
             </Button>
             <Button variant="outline" size="icon" onClick={fetchPrice} disabled={loading}>
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />

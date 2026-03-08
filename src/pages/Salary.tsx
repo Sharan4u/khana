@@ -134,7 +134,7 @@ const Salary = () => {
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={records.length === 0}>
-              <FileText className="h-4 w-4 mr-1" /> PDF
+              <Download className="h-4 w-4 mr-1" /> PDF
             </Button>
           <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetForm(); }}>
             <DialogTrigger asChild>

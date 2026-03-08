@@ -195,7 +195,7 @@ END:VCALENDAR`;
             </div>
           </div>
           <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={monthEntries.length === 0}>
-            <FileText className="h-4 w-4 mr-1" /> PDF
+            <Download className="h-4 w-4 mr-1" /> PDF
           </Button>
         </header>
 
