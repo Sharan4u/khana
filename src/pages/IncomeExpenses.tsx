@@ -145,6 +145,30 @@ const IncomeExpenses = () => {
 
   const fmt = (n: number) => `Rs. ${n.toFixed(2).replace(/\.00$/, "")}`;
 
+  const handleExportPdf = () => {
+    const doc = createPdfDoc();
+    const monthName = format(monthStart, "MMMM yyyy");
+    let y = drawHeader(doc, { title: 'Income & Expenses', subtitle: `Monthly Report — ${monthName}` });
+    y = drawSummaryCards(doc, [
+      { label: 'Income', value: fmt(monthIncome), color: [39, 174, 96] },
+      { label: 'Expense', value: fmt(monthExpense), color: [231, 76, 60] },
+      { label: 'Balance', value: fmt(balance), color: balance >= 0 ? [39, 174, 96] : [231, 76, 60] },
+    ], y);
+    y = drawSectionTitle(doc, 'Transactions', y);
+    autoTable(doc, {
+      head: [['Date', 'Type', 'Category', 'Description', 'Amount']],
+      body: monthTransactions.map(t => [t.date, t.type, t.category, t.description, fmt(t.amount)]),
+      startY: y,
+      styles: { fontSize: 9, cellPadding: 4, lineColor: [220, 220, 220], lineWidth: 0.3 },
+      headStyles: { fillColor: [44, 62, 80], textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [248, 249, 252] },
+      columnStyles: { 4: { halign: 'right', fontStyle: 'bold' } },
+      margin: { left: 14, right: 14 },
+    });
+    drawFooter(doc, getTableFinalY(doc) + 12, 'Income & Expenses');
+    doc.save(`income-expenses-${selectedMonth}.pdf`);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-2xl px-4 py-6 space-y-6">

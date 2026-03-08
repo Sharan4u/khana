@@ -87,6 +87,30 @@ const Gold = () => {
 
   const fmt = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
+  const handleExportPdf = () => {
+    const doc = createPdfDoc();
+    let y = drawHeader(doc, { title: 'Gold Prices', subtitle: `Live Prices — ${UNIT_LABELS[unit]} (USD)` });
+    y = drawSectionTitle(doc, 'Price Comparison', y);
+    autoTable(doc, {
+      head: [['Karat', 'Purity', `Price (${UNIT_LABELS[unit]})`, 'Change', 'Change %']],
+      body: prices.map(p => [
+        `${p.karat}K`,
+        p.karat === 24 ? '99.9%' : p.karat === 22 ? '91.6%' : '75%',
+        fmt(p.price),
+        p.change !== null ? `${p.change >= 0 ? '+' : ''}${fmt(p.change)}` : '—',
+        p.changePct !== null ? `${p.changePct >= 0 ? '+' : ''}${p.changePct.toFixed(2)}%` : '—',
+      ]),
+      startY: y,
+      styles: { fontSize: 10, cellPadding: 5, lineColor: [220, 220, 220], lineWidth: 0.3 },
+      headStyles: { fillColor: [184, 134, 11], textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [255, 250, 235] },
+      columnStyles: { 2: { halign: 'right', fontStyle: 'bold' }, 3: { halign: 'right' }, 4: { halign: 'right' } },
+      margin: { left: 14, right: 14 },
+    });
+    drawFooter(doc, getTableFinalY(doc) + 12, 'Gold Prices');
+    doc.save('gold-prices-report.pdf');
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-2xl px-4 py-6 space-y-6">

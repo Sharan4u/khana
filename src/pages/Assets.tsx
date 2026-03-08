@@ -97,6 +97,32 @@ const Assets = () => {
     };
   }, []);
 
+  const handleExportPdf = () => {
+    const doc = createPdfDoc();
+    let y = drawHeader(doc, { title: 'Financial Freedom', subtitle: 'Asset Portfolio Report' });
+    y = drawSummaryCards(doc, [
+      { label: 'Total Invested', value: pdfFmt(summary.totalInvested), color: [41, 128, 185] },
+      { label: 'Current Value', value: pdfFmt(summary.totalCurrent), color: [142, 68, 173] },
+      { label: 'Gain / Loss', value: `${summary.gainLoss >= 0 ? '+' : ''}${pdfFmt(summary.gainLoss)} (${summary.gainPct.toFixed(1)}%)`, color: summary.gainLoss >= 0 ? [39, 174, 96] : [231, 76, 60] },
+    ], y);
+    y = drawSectionTitle(doc, 'All Assets', y);
+    autoTable(doc, {
+      head: [['Name', 'Category', 'Purchase Amt', 'Current Value', 'Gain/Loss']],
+      body: assets.map(a => {
+        const gl = a.currentValue - a.purchaseAmount;
+        return [a.name, ASSET_CATEGORY_LABELS[a.category], pdfFmt(a.purchaseAmount), pdfFmt(a.currentValue), `${gl >= 0 ? '+' : ''}${pdfFmt(gl)}`];
+      }),
+      startY: y,
+      styles: { fontSize: 9, cellPadding: 4, lineColor: [220, 220, 220], lineWidth: 0.3 },
+      headStyles: { fillColor: [44, 62, 80], textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [248, 249, 252] },
+      columnStyles: { 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' } },
+      margin: { left: 14, right: 14 },
+    });
+    drawFooter(doc, getTableFinalY(doc) + 12, 'Financial Freedom');
+    doc.save('financial-freedom-report.pdf');
+  };
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-5xl mx-auto space-y-6">
