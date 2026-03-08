@@ -314,7 +314,10 @@ const Index = () => {
 
         {/* Expense List */}
         <section className="space-y-3">
-          <h2 className="font-display text-sm font-semibold text-muted-foreground uppercase tracking-wider">Expenses ({monthExpenses.length})</h2>
+          <div className="flex items-center gap-2">
+            <div className="h-1 w-4 rounded-full bg-primary/40" />
+            <h2 className="font-display text-sm font-bold text-muted-foreground uppercase tracking-wider">Expenses ({monthExpenses.length})</h2>
+          </div>
           <ExpenseList expenses={monthExpenses} members={members} onDelete={deleteExpense} onEdit={editExpense} />
         </section>
 
