@@ -33,7 +33,7 @@ const AddExpenseForm = ({ members, onAdd }: AddExpenseFormProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form onSubmit={handleSubmit} className="rounded-2xl border-2 border-dashed border-primary/20 bg-primary/[0.03] p-4 space-y-3">
       <div className="grid grid-cols-2 gap-3">
         <Input
           type="date"
