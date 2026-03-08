@@ -31,6 +31,7 @@ const PayDue = () => {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   const persist = (updated: PayDueRecord[]) => {
     setRecords(updated);
