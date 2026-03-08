@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Trash2, Pencil, Check, X, TrendingUp, TrendingDown, Wallet, Download, BarChart3 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Pencil, Check, X, TrendingUp, TrendingDown, Wallet, Download, BarChart3, FileText } from "lucide-react";
+import { createPdfDoc, drawHeader, drawSummaryCards, drawSectionTitle, drawFooter, getTableFinalY, autoTable, fmt as pdfFmt } from "@/lib/pdf-utils";
 import { format, parse, startOfMonth, endOfMonth, isWithinInterval, subMonths } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { Button } from "@/components/ui/button";
