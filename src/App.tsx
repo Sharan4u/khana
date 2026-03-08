@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import SplitBite from "./pages/SplitBite";
-import ComingSoon from "./pages/ComingSoon";
+import Gold from "./pages/Gold";
 import IncomeExpenses from "./pages/IncomeExpenses";
 import PayDue from "./pages/PayDue";
 import Remittance from "./pages/Remittance";
@@ -32,7 +32,7 @@ const App = () => (
           <Route path="/overtime" element={<Overtime />} />
           <Route path="/salary" element={<Salary />} />
           <Route path="/assets" element={<Assets />} />
-          <Route path="/gold" element={<ComingSoon title="Gold" />} />
+          <Route path="/gold" element={<Gold />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

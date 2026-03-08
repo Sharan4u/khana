@@ -1,7 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Trash2, Pencil, Check, X, TrendingUp, TrendingDown, Wallet, Download } from "lucide-react";
-import { format, parse, startOfMonth, endOfMonth, isWithinInterval } from "date-fns";
+import { ArrowLeft, Plus, Trash2, Pencil, Check, X, TrendingUp, TrendingDown, Wallet, Download, BarChart3 } from "lucide-react";
+import { format, parse, startOfMonth, endOfMonth, isWithinInterval, subMonths } from "date-fns";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -97,6 +98,25 @@ const IncomeExpenses = () => {
 
   const categories = formType === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
 
+  // Monthly bar chart data (last 6 months)
+  const monthlyChartData = useMemo(() => {
+    const now = parse(selectedMonth + "-01", "yyyy-MM-dd", new Date());
+    return Array.from({ length: 6 }, (_, i) => {
+      const m = subMonths(now, 5 - i);
+      const ms = startOfMonth(m);
+      const me = endOfMonth(m);
+      let income = 0, expense = 0;
+      transactions.forEach((t) => {
+        const d = new Date(t.date);
+        if (isWithinInterval(d, { start: ms, end: me })) {
+          if (t.type === "income") income += t.amount;
+          else expense += t.amount;
+        }
+      });
+      return { month: format(m, "MMM"), income, expense };
+    });
+  }, [transactions, selectedMonth]);
+
   // Category breakdown
   const categoryBreakdown = useMemo(() => {
     const map = new Map<string, number>();
@@ -179,7 +199,33 @@ const IncomeExpenses = () => {
           </Card>
         </div>
 
-        {/* Add form */}
+        {/* Monthly Bar Chart */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" /> Monthly Overview (6 months)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pb-4">
+            <div className="h-52">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyChartData} barGap={2}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                  <XAxis dataKey="month" className="text-xs fill-muted-foreground" tick={{ fontSize: 11 }} />
+                  <YAxis className="text-xs fill-muted-foreground" tick={{ fontSize: 11 }} tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
+                  <Tooltip
+                    contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", color: "hsl(var(--card-foreground))" }}
+                    formatter={(value: number, name: string) => [`Rs. ${value.toFixed(0)}`, name === "income" ? "Income" : "Expense"]}
+                  />
+                  <Bar dataKey="income" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="expense" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Add Transaction</CardTitle>
