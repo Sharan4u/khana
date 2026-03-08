@@ -4,7 +4,7 @@ import { Expense, Member, Group } from "@/types/expense";
 import { loadGroups, saveGroups, getActiveGroupId, setActiveGroupId, createGroup, updateGroup, deleteGroup } from "@/lib/storage";
 import { calcSummaries } from "@/components/BalanceCards";
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import AddExpenseForm from "@/components/AddExpenseForm";
 import ExpenseList from "@/components/ExpenseList";
 import BalanceCards from "@/components/BalanceCards";
@@ -158,7 +158,7 @@ const Index = () => {
       e.amount.toFixed(2).replace(/\.00$/, ''),
       members[e.paidBy]?.name || 'Unknown'
     ]);
-    (doc as any).autoTable({
+    autoTable(doc, {
       head: [columns],
       body: rows,
       startY: 20,
@@ -167,7 +167,7 @@ const Index = () => {
       alternateRowStyles: { fillColor: [245, 245, 245] },
       margin: { top: 20 },
     });
-    let y = (doc as any).autoTable.previous.finalY + 10;
+    let y = (doc as any).lastAutoTable.finalY + 10;
     doc.text('Summary:', 10, y);
     y += 10;
     summaries.forEach(s => {
@@ -254,7 +254,7 @@ const Index = () => {
                   </Button>
                 </div>
               )}
-              <p className="text-xs text-muted-foreground">Split food expenses fairly</p>
+              <p className="text-xs text-muted-foreground">Split expenses fairly</p>
             </div>
           </div>
           <div className="flex gap-2">
