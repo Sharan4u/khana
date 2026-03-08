@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Landmark, BarChart3 } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Landmark, BarChart3, FileText } from "lucide-react";
+import { createPdfDoc, drawHeader, drawSummaryCards, drawSectionTitle, drawFooter, getTableFinalY, autoTable, fmt as pdfFmt } from "@/lib/pdf-utils";
 import { Asset, AssetCategory, ASSET_CATEGORY_LABELS } from "@/types/assets";
 import { loadAssets, saveAssets } from "@/lib/assets-storage";
 import { loadTransactions } from "@/lib/income-expense-storage";
