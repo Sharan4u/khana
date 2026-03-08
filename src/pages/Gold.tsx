@@ -5,7 +5,7 @@ import { createPdfDoc, drawHeader, drawSummaryCards, drawSectionTitle, drawFoote
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import ThemeToggle from "@/components/ThemeToggle";
+
 
 interface GoldPrice {
   price: number;
