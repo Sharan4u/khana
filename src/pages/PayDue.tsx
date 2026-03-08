@@ -131,7 +131,12 @@ const PayDue = () => {
             </Button>
             <h1 className="font-display text-xl font-bold">Pay & Due</h1>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={records.length === 0}>
+              <FileText className="h-4 w-4 mr-1" /> PDF
+            </Button>
+            <ThemeToggle />
+          </div>
         </header>
 
         {/* Summary */}

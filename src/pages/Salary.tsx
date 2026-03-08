@@ -101,6 +101,10 @@ const Salary = () => {
             </Button>
             <h1 className="font-display text-2xl font-bold text-foreground">Salary</h1>
           </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={records.length === 0}>
+              <FileText className="h-4 w-4 mr-1" /> PDF
+            </Button>
           <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetForm(); }}>
             <DialogTrigger asChild>
               <Button><Plus className="mr-2 h-4 w-4" />Add Record</Button>

@@ -156,14 +156,19 @@ END:VCALENDAR`;
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-4 py-6 space-y-6">
         {/* Header */}
-        <header className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="font-display text-2xl font-bold tracking-tight">Overtime Record</h1>
-            <p className="text-sm text-muted-foreground">Track your extra hours</p>
+        <header className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="font-display text-2xl font-bold tracking-tight">Overtime Record</h1>
+              <p className="text-sm text-muted-foreground">Track your extra hours</p>
+            </div>
           </div>
+          <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={monthEntries.length === 0}>
+            <FileText className="h-4 w-4 mr-1" /> PDF
+          </Button>
         </header>
 
         {/* Calendar */}
