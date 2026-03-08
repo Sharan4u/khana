@@ -5,6 +5,7 @@ import { createPdfDoc, drawHeader, drawSummaryCards, drawSectionTitle, drawFoote
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -14,7 +15,6 @@ import { cn } from "@/lib/utils";
 import { RemittanceRecord, RemittanceStatus } from "@/types/remittance";
 import { loadRemittances, saveRemittances } from "@/lib/remittance-storage";
 import { useToast } from "@/hooks/use-toast";
-
 
 const Remittance = () => {
   const navigate = useNavigate();
@@ -146,7 +146,6 @@ const Remittance = () => {
             <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={records.length === 0}>
               <Download className="h-4 w-4 mr-1" /> PDF
             </Button>
-            
           </div>
         </header>
 
@@ -166,7 +165,7 @@ const Remittance = () => {
           </Card>
         </div>
 
-        {/* Form */}
+        {/* Inline Form */}
         {!showForm ? (
           <Button onClick={() => setShowForm(true)} className="w-full">
             <Plus className="h-4 w-4 mr-2" /> Add Remittance
@@ -177,30 +176,39 @@ const Remittance = () => {
               <CardTitle className="text-base">{editId ? "Edit" : "New"} Remittance</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Input placeholder="Recipient name *" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} />
+              <div><Label>Recipient Name *</Label><Input placeholder="Recipient name" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} /></div>
               <div className="grid grid-cols-2 gap-3">
-                <Input type="number" placeholder="Amount *" value={amount} onChange={(e) => setAmount(e.target.value)} min="0" step="0.01" />
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className={cn("justify-start text-left font-normal", !date && "text-muted-foreground")}>
-                      <CalendarIcon className="h-4 w-4 mr-2" />
-                      {date ? format(date, "PP") : "Date *"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar mode="single" selected={date} onSelect={setDate} className="p-3 pointer-events-auto" />
-                  </PopoverContent>
-                </Popover>
+                <div>
+                  <Label>Amount *</Label>
+                  <Input type="number" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} min="0" step="0.01" />
+                </div>
+                <div>
+                  <Label>Date *</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}>
+                        <CalendarIcon className="h-4 w-4 mr-2" />
+                        {date ? format(date, "PP") : "Pick a date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar mode="single" selected={date} onSelect={setDate} className="p-3 pointer-events-auto" />
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
-              <Select value={status} onValueChange={(v) => setStatus(v as RemittanceStatus)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="sent">Sent</SelectItem>
-                  <SelectItem value="received">Received</SelectItem>
-                </SelectContent>
-              </Select>
-              <Input placeholder="Note (optional)" value={note} onChange={(e) => setNote(e.target.value)} />
+              <div>
+                <Label>Status</Label>
+                <Select value={status} onValueChange={(v) => setStatus(v as RemittanceStatus)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="sent">Sent</SelectItem>
+                    <SelectItem value="received">Received</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div><Label>Note</Label><Input placeholder="Optional note" value={note} onChange={(e) => setNote(e.target.value)} /></div>
               <div className="flex gap-2">
                 <Button onClick={handleSubmit} className="flex-1">{editId ? "Update" : "Add"}</Button>
                 <Button variant="outline" onClick={resetForm}><X className="h-4 w-4" /></Button>

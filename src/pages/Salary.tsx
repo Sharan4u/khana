@@ -5,9 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Plus, Pencil, Trash2, Wallet, TrendingUp, ShoppingCart, PiggyBank, Download } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, Wallet, TrendingUp, ShoppingCart, PiggyBank, Download, X } from "lucide-react";
 import { createPdfDoc, drawHeader, drawSummaryCards, drawSectionTitle, drawFooter, getTableFinalY, autoTable, fmt as pdfFmt } from "@/lib/pdf-utils";
 import { SalaryRecord } from "@/types/salary";
 import { loadSalaryRecords, saveSalaryRecords } from "@/lib/salary-storage";
@@ -17,7 +16,7 @@ const Salary = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [records, setRecords] = useState<SalaryRecord[]>(loadSalaryRecords);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [month, setMonth] = useState(() => {
@@ -36,6 +35,7 @@ const Salary = () => {
     setMonth(`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`);
     setGrossSalary(""); setInvestmentAmount(""); setExpensesAmount(""); setSavingAmount(""); setNotes("");
     setEditingId(null);
+    setShowForm(false);
   };
 
   const handleSubmit = () => {
@@ -66,13 +66,13 @@ const Salary = () => {
       persist([entry, ...records]);
       toast({ title: "Salary record added" });
     }
-    resetForm(); setDialogOpen(false);
+    resetForm();
   };
 
   const handleEdit = (r: SalaryRecord) => {
     setEditingId(r.id); setMonth(r.month); setGrossSalary(String(r.grossSalary));
     setInvestmentAmount(String(r.investmentAmount)); setExpensesAmount(String(r.expensesAmount));
-    setSavingAmount(String(r.savingAmount)); setNotes(r.notes); setDialogOpen(true);
+    setSavingAmount(String(r.savingAmount)); setNotes(r.notes); setShowForm(true);
   };
 
   const handleDelete = (id: string) => {
@@ -136,31 +136,6 @@ const Salary = () => {
             <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={records.length === 0}>
               <Download className="h-4 w-4 mr-1" /> PDF
             </Button>
-          <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetForm(); }}>
-            <DialogTrigger asChild>
-              <Button><Plus className="mr-2 h-4 w-4" />Add Record</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader><DialogTitle>{editingId ? "Edit" : "Add"} Salary Record</DialogTitle></DialogHeader>
-              <div className="space-y-4">
-                <div><Label>Month</Label><Input type="month" value={month} onChange={e => setMonth(e.target.value)} /></div>
-                <div><Label>Gross Salary</Label><Input type="number" placeholder="0.00" value={grossSalary} onChange={e => setGrossSalary(e.target.value)} /></div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div><Label>Investment</Label><Input type="number" placeholder="0.00" value={investmentAmount} onChange={e => setInvestmentAmount(e.target.value)} /></div>
-                  <div><Label>Expenses</Label><Input type="number" placeholder="0.00" value={expensesAmount} onChange={e => setExpensesAmount(e.target.value)} /></div>
-                  <div><Label>Saving</Label><Input type="number" placeholder="0.00" value={savingAmount} onChange={e => setSavingAmount(e.target.value)} /></div>
-                </div>
-                {grossSalary && parseFloat(grossSalary) > 0 && (
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between"><span>Unallocated</span><span className="font-semibold">{(parseFloat(grossSalary) - (parseFloat(investmentAmount) || 0) - (parseFloat(expensesAmount) || 0) - (parseFloat(savingAmount) || 0)).toFixed(2)}</span></div>
-                    <Progress value={((parseFloat(investmentAmount) || 0) + (parseFloat(expensesAmount) || 0) + (parseFloat(savingAmount) || 0)) / parseFloat(grossSalary) * 100} />
-                  </div>
-                )}
-                <div><Label>Notes</Label><Input value={notes} onChange={e => setNotes(e.target.value)} placeholder="Optional notes" /></div>
-                <Button className="w-full" onClick={handleSubmit}>{editingId ? "Update" : "Add"} Record</Button>
-              </div>
-            </DialogContent>
-          </Dialog>
           </div>
         </div>
 
@@ -171,6 +146,39 @@ const Salary = () => {
           <Card><CardContent className="p-4 flex items-center gap-3"><ShoppingCart className="h-8 w-8 text-primary" /><div><p className="text-xs text-muted-foreground">Expenses</p><p className="text-lg font-bold text-foreground">{totals.expenses.toFixed(2)}</p></div></CardContent></Card>
           <Card><CardContent className="p-4 flex items-center gap-3"><PiggyBank className="h-8 w-8 text-primary" /><div><p className="text-xs text-muted-foreground">Saving</p><p className="text-lg font-bold text-foreground">{totals.saving.toFixed(2)}</p></div></CardContent></Card>
         </div>
+
+        {/* Inline Form */}
+        {!showForm ? (
+          <Button onClick={() => setShowForm(true)} className="w-full">
+            <Plus className="h-4 w-4 mr-2" /> Add Record
+          </Button>
+        ) : (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">{editingId ? "Edit" : "New"} Salary Record</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div><Label>Month</Label><Input type="month" value={month} onChange={e => setMonth(e.target.value)} /></div>
+              <div><Label>Gross Salary</Label><Input type="number" placeholder="0.00" value={grossSalary} onChange={e => setGrossSalary(e.target.value)} /></div>
+              <div className="grid grid-cols-3 gap-3">
+                <div><Label>Investment</Label><Input type="number" placeholder="0.00" value={investmentAmount} onChange={e => setInvestmentAmount(e.target.value)} /></div>
+                <div><Label>Expenses</Label><Input type="number" placeholder="0.00" value={expensesAmount} onChange={e => setExpensesAmount(e.target.value)} /></div>
+                <div><Label>Saving</Label><Input type="number" placeholder="0.00" value={savingAmount} onChange={e => setSavingAmount(e.target.value)} /></div>
+              </div>
+              {grossSalary && parseFloat(grossSalary) > 0 && (
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between"><span>Unallocated</span><span className="font-semibold">{(parseFloat(grossSalary) - (parseFloat(investmentAmount) || 0) - (parseFloat(expensesAmount) || 0) - (parseFloat(savingAmount) || 0)).toFixed(2)}</span></div>
+                  <Progress value={((parseFloat(investmentAmount) || 0) + (parseFloat(expensesAmount) || 0) + (parseFloat(savingAmount) || 0)) / parseFloat(grossSalary) * 100} />
+                </div>
+              )}
+              <div><Label>Notes</Label><Input value={notes} onChange={e => setNotes(e.target.value)} placeholder="Optional notes" /></div>
+              <div className="flex gap-2">
+                <Button className="flex-1" onClick={handleSubmit}>{editingId ? "Update" : "Add"} Record</Button>
+                <Button variant="outline" onClick={resetForm}><X className="h-4 w-4" /></Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Records Table */}
         <Card>
