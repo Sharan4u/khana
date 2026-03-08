@@ -3,7 +3,7 @@ import { UtensilsCrossed, Wallet, HandCoins, Send, Clock, Banknote, Package, Cir
 import ThemeToggle from "@/components/ThemeToggle";
 
 const apps = [
-  { name: "SplitBite", icon: UtensilsCrossed, path: "/splitbite", color: "from-primary to-secondary", description: "Split food expenses" },
+  { name: "Splitwise", icon: UtensilsCrossed, path: "/splitbite", color: "from-primary to-secondary", description: "Split Expenses" },
   { name: "Income & Expenses", icon: Wallet, path: "/income-expenses", color: "from-emerald-600 to-emerald-800", description: "Track your money flow" },
   { name: "Pay & Due", icon: HandCoins, path: "/pay-due", color: "from-amber-500 to-amber-700", description: "Manage payments & dues" },
   { name: "Remittance", icon: Send, path: "/remittance", color: "from-sky-500 to-sky-700", description: "Track remittances" },
