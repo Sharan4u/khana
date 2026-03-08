@@ -30,20 +30,38 @@ const Gold = () => {
   const [unit, setUnit] = useState<Unit>("gram");
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
+  const fetchFromGoldPriceOrg = async (): Promise<{ price: number; prev: number }> => {
+    const res = await fetch("https://data-asg.goldprice.org/dbXRates/USD");
+    if (!res.ok) throw new Error("goldprice.org failed");
+    const data = await res.json();
+    const item = data.items?.[0];
+    if (!item?.xauPrice) throw new Error("No data from goldprice.org");
+    return { price: item.xauPrice / 31.1035, prev: item.xauClose / 31.1035 };
+  };
+
+  const fetchFromMetalPriceApi = async (): Promise<{ price: number; prev: number }> => {
+    const res = await fetch("https://api.metalpriceapi.com/v1/latest?api_key=demo&base=USD&currencies=XAU");
+    if (!res.ok) throw new Error("metalpriceapi failed");
+    const data = await res.json();
+    if (!data.rates?.USDXAU) throw new Error("No data from metalpriceapi");
+    // USDXAU is how many ounces per 1 USD, so price per ounce = 1/rate
+    const pricePerOz = 1 / data.rates.USDXAU;
+    const perGram = pricePerOz / 31.1035;
+    return { price: perGram, prev: perGram }; // no prev close from this API
+  };
+
   const fetchPrice = async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("https://data-asg.goldprice.org/dbXRates/USD");
-      if (!res.ok) throw new Error("Failed to fetch");
-      const data = await res.json();
-      const item = data.items?.[0];
-      if (!item) throw new Error("No data");
-      // xauPrice is per troy ounce in USD
-      const usdPerGram = item.xauPrice / 31.1035;
-      const prevPerGram = item.xauClose / 31.1035;
-      setPricePerGram24k(usdPerGram);
-      setPrevClose(prevPerGram);
+      let result: { price: number; prev: number };
+      try {
+        result = await fetchFromGoldPriceOrg();
+      } catch {
+        result = await fetchFromMetalPriceApi();
+      }
+      setPricePerGram24k(result.price);
+      setPrevClose(result.prev);
       setLastUpdated(new Date());
     } catch {
       setError("Could not fetch live gold prices. Please try again.");
