@@ -9,7 +9,7 @@ const apps = [
   { name: "Remittance", icon: Send, path: "/remittance", color: "from-sky-500 to-sky-700", description: "Track remittances" },
   { name: "Overtime Record", icon: Clock, path: "/overtime", color: "from-violet-500 to-violet-700", description: "Log overtime hours" },
   { name: "Salary", icon: Banknote, path: "/salary", color: "from-teal-500 to-teal-700", description: "Salary management" },
-  { name: "Assets", icon: Package, path: "/assets", color: "from-rose-500 to-rose-700", description: "Track your assets" },
+  { name: "Financial Freedom", icon: Package, path: "/assets", color: "from-rose-500 to-rose-700", description: "Track investments & freedom" },
   { name: "Gold", icon: CircleDot, path: "/gold", color: "from-yellow-500 to-yellow-700", description: "Gold investments" },
 ];
 
