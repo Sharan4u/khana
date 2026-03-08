@@ -76,43 +76,25 @@ const Assets = () => {
     return { totalInvested, totalCurrent, gainLoss, gainPct, byCategory };
   }, [assets]);
 
-  // Financial Freedom Calculator
-  const freedom = useMemo(() => {
+  // Avg income/expense for calculator
+  const incomeExpenseStats = useMemo(() => {
     const transactions = loadTransactions();
     const now = new Date();
     const last6Months = Array.from({ length: 6 }, (_, i) => {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     });
-
     let totalIncome = 0, totalExpense = 0, months = 0;
     last6Months.forEach(m => {
       const monthTx = transactions.filter(t => t.date.startsWith(m));
       if (monthTx.length > 0) months++;
       monthTx.forEach(t => { if (t.type === "income") totalIncome += t.amount; else totalExpense += t.amount; });
     });
-
-    const avgMonthlyExpense = months > 0 ? totalExpense / months : 0;
-    const avgMonthlyIncome = months > 0 ? totalIncome / months : 0;
-    const totalAssetValue = summary.totalCurrent;
-    const monthsCovered = avgMonthlyExpense > 0 ? totalAssetValue / avgMonthlyExpense : 0;
-    const savingsRate = avgMonthlyIncome > 0 ? ((avgMonthlyIncome - avgMonthlyExpense) / avgMonthlyIncome) * 100 : 0;
-
-    let status: "critical" | "building" | "stable" | "free" = "critical";
-    let label = "Critical";
-    if (monthsCovered >= 120) { status = "free"; label = "Financially Free 🎉"; }
-    else if (monthsCovered >= 24) { status = "stable"; label = "Stable"; }
-    else if (monthsCovered >= 6) { status = "building"; label = "Building"; }
-
-    return { avgMonthlyExpense, avgMonthlyIncome, totalAssetValue, monthsCovered, savingsRate, status, label };
-  }, [summary.totalCurrent]);
-
-  const statusColors: Record<string, string> = {
-    critical: "bg-destructive text-destructive-foreground",
-    building: "bg-warning text-warning-foreground",
-    stable: "bg-primary text-primary-foreground",
-    free: "bg-success text-success-foreground",
-  };
+    return {
+      avgMonthlyIncome: months > 0 ? totalIncome / months : 0,
+      avgMonthlyExpense: months > 0 ? totalExpense / months : 0,
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
