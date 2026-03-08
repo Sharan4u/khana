@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Landmark, BarChart3 } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Landmark, BarChart3, FileText } from "lucide-react";
+import { createPdfDoc, drawHeader, drawSummaryCards, drawSectionTitle, drawFooter, getTableFinalY, autoTable, fmt as pdfFmt } from "@/lib/pdf-utils";
 import { Asset, AssetCategory, ASSET_CATEGORY_LABELS } from "@/types/assets";
 import { loadAssets, saveAssets } from "@/lib/assets-storage";
 import { loadTransactions } from "@/lib/income-expense-storage";
@@ -96,6 +97,32 @@ const Assets = () => {
     };
   }, []);
 
+  const handleExportPdf = () => {
+    const doc = createPdfDoc();
+    let y = drawHeader(doc, { title: 'Financial Freedom', subtitle: 'Asset Portfolio Report' });
+    y = drawSummaryCards(doc, [
+      { label: 'Total Invested', value: pdfFmt(summary.totalInvested), color: [41, 128, 185] },
+      { label: 'Current Value', value: pdfFmt(summary.totalCurrent), color: [142, 68, 173] },
+      { label: 'Gain / Loss', value: `${summary.gainLoss >= 0 ? '+' : ''}${pdfFmt(summary.gainLoss)} (${summary.gainPct.toFixed(1)}%)`, color: summary.gainLoss >= 0 ? [39, 174, 96] : [231, 76, 60] },
+    ], y);
+    y = drawSectionTitle(doc, 'All Assets', y);
+    autoTable(doc, {
+      head: [['Name', 'Category', 'Purchase Amt', 'Current Value', 'Gain/Loss']],
+      body: assets.map(a => {
+        const gl = a.currentValue - a.purchaseAmount;
+        return [a.name, ASSET_CATEGORY_LABELS[a.category], pdfFmt(a.purchaseAmount), pdfFmt(a.currentValue), `${gl >= 0 ? '+' : ''}${pdfFmt(gl)}`];
+      }),
+      startY: y,
+      styles: { fontSize: 9, cellPadding: 4, lineColor: [220, 220, 220], lineWidth: 0.3 },
+      headStyles: { fillColor: [44, 62, 80], textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [248, 249, 252] },
+      columnStyles: { 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' } },
+      margin: { left: 14, right: 14 },
+    });
+    drawFooter(doc, getTableFinalY(doc) + 12, 'Financial Freedom');
+    doc.save('financial-freedom-report.pdf');
+  };
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-5xl mx-auto space-y-6">
@@ -106,6 +133,10 @@ const Assets = () => {
             </Button>
             <h1 className="font-display text-2xl font-bold text-foreground">Financial Freedom</h1>
           </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={assets.length === 0}>
+              <FileText className="h-4 w-4 mr-1" /> PDF
+            </Button>
           <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetForm(); }}>
             <DialogTrigger asChild>
               <Button><Plus className="mr-2 h-4 w-4" />Add Asset</Button>
@@ -135,6 +166,7 @@ const Assets = () => {
               </div>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         {/* Summary Cards */}

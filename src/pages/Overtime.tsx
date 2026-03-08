@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Trash2, Pencil, Check, X, ChevronLeft, ChevronRight, Clock, CalendarDays, TrendingUp, Download } from "lucide-react";
+import { ArrowLeft, Trash2, Pencil, Check, X, ChevronLeft, ChevronRight, Clock, CalendarDays, TrendingUp, Download, FileText } from "lucide-react";
+import { createPdfDoc, drawHeader, drawSummaryCards, drawSectionTitle, drawFooter, getTableFinalY, autoTable, fmt as pdfFmt } from "@/lib/pdf-utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -59,6 +60,34 @@ const Overtime = () => {
   const totalHours = useMemo(() => monthEntries.reduce((s, e) => s + e.hours, 0), [monthEntries]);
   const daysWorked = useMemo(() => dayMap.size, [dayMap]);
   const avgPerDay = daysWorked > 0 ? totalHours / daysWorked : 0;
+
+  const handleExportPdf = () => {
+    const doc = createPdfDoc();
+    let y = drawHeader(doc, { title: 'Overtime Record', subtitle: `Monthly Report — ${monthLabel}` });
+    y = drawSummaryCards(doc, [
+      { label: 'Total Hours', value: `${totalHours.toFixed(1)}h`, color: [230, 126, 34] },
+      { label: 'Days Worked', value: `${daysWorked}`, color: [41, 128, 185] },
+      { label: 'Avg/Day', value: `${avgPerDay.toFixed(1)}h`, color: [39, 174, 96] },
+    ], y);
+    y = drawSectionTitle(doc, 'Overtime Entries', y);
+    const sorted = [...monthEntries].sort((a, b) => b.date.localeCompare(a.date));
+    autoTable(doc, {
+      head: [['Date', 'Hours', 'Note']],
+      body: sorted.map(e => [
+        new Date(e.date + 'T00:00:00').toLocaleDateString('default', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }),
+        `${e.hours}h`,
+        e.note || '—',
+      ]),
+      startY: y,
+      styles: { fontSize: 9, cellPadding: 4, lineColor: [220, 220, 220], lineWidth: 0.3 },
+      headStyles: { fillColor: [230, 126, 34], textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [248, 249, 252] },
+      columnStyles: { 1: { halign: 'right', fontStyle: 'bold' } },
+      margin: { left: 14, right: 14 },
+    });
+    drawFooter(doc, getTableFinalY(doc) + 12, 'Overtime Record');
+    doc.save(`overtime-${currentMonth}.pdf`);
+  };
 
   const prevMonth = () => {
     const d = new Date(year, month - 2, 1);
@@ -155,14 +184,19 @@ END:VCALENDAR`;
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-4 py-6 space-y-6">
         {/* Header */}
-        <header className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="font-display text-2xl font-bold tracking-tight">Overtime Record</h1>
-            <p className="text-sm text-muted-foreground">Track your extra hours</p>
+        <header className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="font-display text-2xl font-bold tracking-tight">Overtime Record</h1>
+              <p className="text-sm text-muted-foreground">Track your extra hours</p>
+            </div>
           </div>
+          <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={monthEntries.length === 0}>
+            <FileText className="h-4 w-4 mr-1" /> PDF
+          </Button>
         </header>
 
         {/* Calendar */}

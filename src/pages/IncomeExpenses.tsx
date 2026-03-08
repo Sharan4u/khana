@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Trash2, Pencil, Check, X, TrendingUp, TrendingDown, Wallet, Download, BarChart3 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Pencil, Check, X, TrendingUp, TrendingDown, Wallet, Download, BarChart3, FileText } from "lucide-react";
+import { createPdfDoc, drawHeader, drawSummaryCards, drawSectionTitle, drawFooter, getTableFinalY, autoTable, fmt as pdfFmt } from "@/lib/pdf-utils";
 import { format, parse, startOfMonth, endOfMonth, isWithinInterval, subMonths } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { Button } from "@/components/ui/button";
@@ -144,6 +145,30 @@ const IncomeExpenses = () => {
 
   const fmt = (n: number) => `Rs. ${n.toFixed(2).replace(/\.00$/, "")}`;
 
+  const handleExportPdf = () => {
+    const doc = createPdfDoc();
+    const monthName = format(monthStart, "MMMM yyyy");
+    let y = drawHeader(doc, { title: 'Income & Expenses', subtitle: `Monthly Report — ${monthName}` });
+    y = drawSummaryCards(doc, [
+      { label: 'Income', value: fmt(monthIncome), color: [39, 174, 96] },
+      { label: 'Expense', value: fmt(monthExpense), color: [231, 76, 60] },
+      { label: 'Balance', value: fmt(balance), color: balance >= 0 ? [39, 174, 96] : [231, 76, 60] },
+    ], y);
+    y = drawSectionTitle(doc, 'Transactions', y);
+    autoTable(doc, {
+      head: [['Date', 'Type', 'Category', 'Description', 'Amount']],
+      body: monthTransactions.map(t => [t.date, t.type, t.category, t.description, fmt(t.amount)]),
+      startY: y,
+      styles: { fontSize: 9, cellPadding: 4, lineColor: [220, 220, 220], lineWidth: 0.3 },
+      headStyles: { fillColor: [44, 62, 80], textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [248, 249, 252] },
+      columnStyles: { 4: { halign: 'right', fontStyle: 'bold' } },
+      margin: { left: 14, right: 14 },
+    });
+    drawFooter(doc, getTableFinalY(doc) + 12, 'Income & Expenses');
+    doc.save(`income-expenses-${selectedMonth}.pdf`);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-2xl px-4 py-6 space-y-6">
@@ -155,7 +180,12 @@ const IncomeExpenses = () => {
             </Button>
             <h1 className="font-display text-xl font-bold">Income & Expenses</h1>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={monthTransactions.length === 0}>
+              <FileText className="h-4 w-4 mr-1" /> PDF
+            </Button>
+            <ThemeToggle />
+          </div>
         </header>
 
         {/* Month picker */}

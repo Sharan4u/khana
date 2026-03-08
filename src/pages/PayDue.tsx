@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Trash2, Edit2, Check, X, CalendarIcon } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Edit2, Check, X, CalendarIcon, FileText } from "lucide-react";
+import { createPdfDoc, drawHeader, drawSummaryCards, drawSectionTitle, drawFooter, getTableFinalY, autoTable, fmt as pdfFmt } from "@/lib/pdf-utils";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -120,6 +121,28 @@ const PayDue = () => {
     return <Badge variant={s.variant}>{s.label}</Badge>;
   };
 
+  const handleExportPdf = () => {
+    const doc = createPdfDoc();
+    let y = drawHeader(doc, { title: 'Pay & Due', subtitle: 'Outstanding Records Report' });
+    y = drawSummaryCards(doc, [
+      { label: 'You Owe', value: pdfFmt(totalPay), color: [231, 76, 60] },
+      { label: 'Owed to You', value: pdfFmt(totalDue), color: [39, 174, 96] },
+    ], y);
+    y = drawSectionTitle(doc, 'All Records', y);
+    autoTable(doc, {
+      head: [['Person', 'Type', 'Amount', 'Status', 'Due Date', 'Description']],
+      body: records.map(r => [r.personName, r.type === 'pay' ? 'I Owe' : 'Owes Me', pdfFmt(r.amount), r.status, format(new Date(r.dueDate), 'PP'), r.description || '—']),
+      startY: y,
+      styles: { fontSize: 9, cellPadding: 4, lineColor: [220, 220, 220], lineWidth: 0.3 },
+      headStyles: { fillColor: [44, 62, 80], textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [248, 249, 252] },
+      columnStyles: { 2: { halign: 'right', fontStyle: 'bold' } },
+      margin: { left: 14, right: 14 },
+    });
+    drawFooter(doc, getTableFinalY(doc) + 12, 'Pay & Due');
+    doc.save('pay-due-report.pdf');
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-2xl px-4 py-6 space-y-6">
@@ -130,7 +153,12 @@ const PayDue = () => {
             </Button>
             <h1 className="font-display text-xl font-bold">Pay & Due</h1>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={records.length === 0}>
+              <FileText className="h-4 w-4 mr-1" /> PDF
+            </Button>
+            <ThemeToggle />
+          </div>
         </header>
 
         {/* Summary */}

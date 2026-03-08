@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Plus, Pencil, Trash2, Wallet, TrendingUp, ShoppingCart, PiggyBank } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, Wallet, TrendingUp, ShoppingCart, PiggyBank, FileText } from "lucide-react";
+import { createPdfDoc, drawHeader, drawSummaryCards, drawSectionTitle, drawFooter, getTableFinalY, autoTable, fmt as pdfFmt } from "@/lib/pdf-utils";
 import { SalaryRecord } from "@/types/salary";
 import { loadSalaryRecords, saveSalaryRecords } from "@/lib/salary-storage";
 import { useToast } from "@/hooks/use-toast";
@@ -90,6 +91,37 @@ const Salary = () => {
     return new Date(parseInt(y), parseInt(mo) - 1).toLocaleDateString("en-US", { year: "numeric", month: "long" });
   };
 
+  const handleExportPdf = () => {
+    const doc = createPdfDoc();
+    let y = drawHeader(doc, { title: 'Salary', subtitle: 'Salary Records Report' });
+    y = drawSummaryCards(doc, [
+      { label: 'Total Salary', value: pdfFmt(totals.salary), color: [41, 128, 185] },
+      { label: 'Investment', value: pdfFmt(totals.investment), color: [142, 68, 173] },
+      { label: 'Expenses', value: pdfFmt(totals.expenses), color: [231, 76, 60] },
+      { label: 'Saving', value: pdfFmt(totals.saving), color: [39, 174, 96] },
+    ], y);
+    y = drawSectionTitle(doc, 'Monthly Records', y);
+    autoTable(doc, {
+      head: [['Month', 'Gross Salary', 'Investment', 'Expenses', 'Saving', 'Unallocated']],
+      body: records.map(r => [
+        formatMonth(r.month),
+        pdfFmt(r.grossSalary),
+        pdfFmt(r.investmentAmount),
+        pdfFmt(r.expensesAmount),
+        pdfFmt(r.savingAmount),
+        pdfFmt(r.grossSalary - r.investmentAmount - r.expensesAmount - r.savingAmount),
+      ]),
+      startY: y,
+      styles: { fontSize: 9, cellPadding: 4, lineColor: [220, 220, 220], lineWidth: 0.3 },
+      headStyles: { fillColor: [44, 62, 80], textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [248, 249, 252] },
+      columnStyles: { 1: { halign: 'right' }, 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' } },
+      margin: { left: 14, right: 14 },
+    });
+    drawFooter(doc, getTableFinalY(doc) + 12, 'Salary');
+    doc.save('salary-report.pdf');
+  };
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -100,6 +132,10 @@ const Salary = () => {
             </Button>
             <h1 className="font-display text-2xl font-bold text-foreground">Salary</h1>
           </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={records.length === 0}>
+              <FileText className="h-4 w-4 mr-1" /> PDF
+            </Button>
           <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetForm(); }}>
             <DialogTrigger asChild>
               <Button><Plus className="mr-2 h-4 w-4" />Add Record</Button>
@@ -125,6 +161,7 @@ const Salary = () => {
               </div>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         {/* Summary Cards */}

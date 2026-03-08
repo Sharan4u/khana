@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Trash2, Edit2, X, CalendarIcon } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Edit2, X, CalendarIcon, FileText } from "lucide-react";
+import { createPdfDoc, drawHeader, drawSummaryCards, drawSectionTitle, drawFooter, getTableFinalY, autoTable, fmt as pdfFmt } from "@/lib/pdf-utils";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -109,6 +110,28 @@ const Remittance = () => {
     return <Badge variant={s.variant}>{s.label}</Badge>;
   };
 
+  const handleExportPdf = () => {
+    const doc = createPdfDoc();
+    let y = drawHeader(doc, { title: 'Remittance', subtitle: 'Transfer Records Report' });
+    y = drawSummaryCards(doc, [
+      { label: 'Total Sent', value: pdfFmt(totalSent), color: [39, 174, 96] },
+      { label: 'Pending', value: pdfFmt(totalPending), color: [231, 76, 60] },
+    ], y);
+    y = drawSectionTitle(doc, 'All Remittances', y);
+    autoTable(doc, {
+      head: [['Recipient', 'Amount', 'Date', 'Status', 'Note']],
+      body: records.map(r => [r.recipientName, pdfFmt(r.amount), format(new Date(r.date), 'PP'), r.status, r.note || '—']),
+      startY: y,
+      styles: { fontSize: 9, cellPadding: 4, lineColor: [220, 220, 220], lineWidth: 0.3 },
+      headStyles: { fillColor: [44, 62, 80], textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [248, 249, 252] },
+      columnStyles: { 1: { halign: 'right', fontStyle: 'bold' } },
+      margin: { left: 14, right: 14 },
+    });
+    drawFooter(doc, getTableFinalY(doc) + 12, 'Remittance');
+    doc.save('remittance-report.pdf');
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-2xl px-4 py-6 space-y-6">
@@ -119,7 +142,12 @@ const Remittance = () => {
             </Button>
             <h1 className="font-display text-xl font-bold">Remittance</h1>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={records.length === 0}>
+              <FileText className="h-4 w-4 mr-1" /> PDF
+            </Button>
+            <ThemeToggle />
+          </div>
         </header>
 
         {/* Summary */}
