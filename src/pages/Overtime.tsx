@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Trash2, Pencil, Check, X, ChevronLeft, ChevronRight, Clock, CalendarDays, TrendingUp, Download } from "lucide-react";
+import { ArrowLeft, Trash2, Pencil, Check, X, ChevronLeft, ChevronRight, Clock, CalendarDays, TrendingUp, Download, FileText } from "lucide-react";
+import { createPdfDoc, drawHeader, drawSummaryCards, drawSectionTitle, drawFooter, getTableFinalY, autoTable, fmt as pdfFmt } from "@/lib/pdf-utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
