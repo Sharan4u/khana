@@ -130,6 +130,7 @@ const Salary = () => {
               </div>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         {/* Summary Cards */}
