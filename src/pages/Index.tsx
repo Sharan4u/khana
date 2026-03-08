@@ -21,8 +21,8 @@ const Index = () => {
       <div className="mx-auto max-w-3xl px-4 py-8 sm:py-16 space-y-10">
         <header className="flex items-center justify-between">
           <div>
-            <h1 className="font-display text-3xl font-bold tracking-tight">Khana Hisab</h1>
-            <p className="text-sm text-muted-foreground mt-1">Your personal finance dashboard</p>
+            <h1 className="font-display text-3xl font-bold tracking-tight">Smart Money</h1>
+            <p className="text-sm text-muted-foreground mt-1">Your smart personal finance dashboard</p>
           </div>
           <ThemeToggle />
         </header>
