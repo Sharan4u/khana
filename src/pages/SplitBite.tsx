@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Expense, Member, Group } from "@/types/expense";
 import { loadGroups, saveGroups, getActiveGroupId, setActiveGroupId, createGroup, updateGroup, deleteGroup } from "@/lib/storage";
 import { calcSummaries } from "@/components/BalanceCards";
