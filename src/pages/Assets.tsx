@@ -145,28 +145,14 @@ const Assets = () => {
             {summary.gainLoss >= 0 ? <TrendingUp className="h-8 w-8 text-success" /> : <TrendingDown className="h-8 w-8 text-destructive" />}
             <div><p className="text-xs text-muted-foreground">Gain / Loss</p><p className={`text-lg font-bold ${summary.gainLoss >= 0 ? "text-success" : "text-destructive"}`}>{summary.gainLoss >= 0 ? "+" : ""}{summary.gainLoss.toFixed(2)} ({summary.gainPct.toFixed(1)}%)</p></div>
           </CardContent></Card>
-          <Card><CardContent className="p-4 flex items-center gap-3"><Target className="h-8 w-8 text-primary" /><div><p className="text-xs text-muted-foreground">Freedom Status</p><Badge className={statusColors[freedom.status]}>{freedom.label}</Badge></div></CardContent></Card>
         </div>
 
-        {/* Financial Freedom Detail */}
-        <Card>
-          <CardHeader><CardTitle className="text-lg">Financial Freedom Calculator</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div><p className="text-muted-foreground">Avg Monthly Income</p><p className="font-bold text-foreground">{freedom.avgMonthlyIncome.toFixed(2)}</p></div>
-              <div><p className="text-muted-foreground">Avg Monthly Expense</p><p className="font-bold text-foreground">{freedom.avgMonthlyExpense.toFixed(2)}</p></div>
-              <div><p className="text-muted-foreground">Savings Rate</p><p className="font-bold text-foreground">{freedom.savingsRate.toFixed(1)}%</p></div>
-              <div><p className="text-muted-foreground">Months Covered by Assets</p><p className="font-bold text-foreground">{freedom.monthsCovered.toFixed(1)}</p></div>
-            </div>
-            <div>
-              <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                <span>Progress to Financial Freedom (120 months)</span>
-                <span>{Math.min(100, (freedom.monthsCovered / 120) * 100).toFixed(0)}%</span>
-              </div>
-              <Progress value={Math.min(100, (freedom.monthsCovered / 120) * 100)} />
-            </div>
-          </CardContent>
-        </Card>
+        {/* Financial Freedom Calculator */}
+        <FinancialFreedomCalculator
+          totalAssetValue={summary.totalCurrent}
+          avgMonthlyIncome={incomeExpenseStats.avgMonthlyIncome}
+          avgMonthlyExpense={incomeExpenseStats.avgMonthlyExpense}
+        />
 
         {/* Category Breakdown */}
         {Object.keys(summary.byCategory).length > 0 && (
