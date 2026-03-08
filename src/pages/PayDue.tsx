@@ -202,7 +202,7 @@ const PayDue = () => {
               <Input placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
               <div className="grid grid-cols-2 gap-3">
                 <Input type="number" placeholder="Amount *" value={amount} onChange={(e) => setAmount(e.target.value)} min="0" step="0.01" />
-                <Popover>
+                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                   <PopoverTrigger asChild>
                     <Button variant="outline" className={cn("justify-start text-left font-normal", !dueDate && "text-muted-foreground")}>
                       <CalendarIcon className="h-4 w-4 mr-2" />
@@ -210,7 +210,7 @@ const PayDue = () => {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar mode="single" selected={dueDate} onSelect={setDueDate} className="p-3 pointer-events-auto" />
+                    <Calendar mode="single" selected={dueDate} onSelect={(d) => { setDueDate(d); setCalendarOpen(false); }} className="p-3 pointer-events-auto" />
                   </PopoverContent>
                 </Popover>
               </div>

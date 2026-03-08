@@ -185,7 +185,7 @@ const Remittance = () => {
                 </div>
                 <div>
                   <Label>Date *</Label>
-                  <Popover>
+                  <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                     <PopoverTrigger asChild>
                       <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}>
                         <CalendarIcon className="h-4 w-4 mr-2" />
@@ -193,7 +193,7 @@ const Remittance = () => {
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar mode="single" selected={date} onSelect={setDate} className="p-3 pointer-events-auto" />
+                      <Calendar mode="single" selected={date} onSelect={(d) => { setDate(d); setCalendarOpen(false); }} className="p-3 pointer-events-auto" />
                     </PopoverContent>
                   </Popover>
                 </div>
