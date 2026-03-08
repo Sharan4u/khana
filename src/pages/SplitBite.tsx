@@ -254,7 +254,7 @@ const Index = () => {
                   </Button>
                 </div>
               )}
-              <p className="text-xs text-muted-foreground">Split food expenses fairly</p>
+              <p className="text-xs text-muted-foreground">Split expenses fairly</p>
             </div>
           </div>
           <div className="flex gap-2">
